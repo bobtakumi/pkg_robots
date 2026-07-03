@@ -3,13 +3,22 @@
 正例 = 出典別テーブルの確度「高」行（zettel → 文献ノート）。
 負例 = レポート冒頭「重要な訂正」の DS 誤接続（judge の few-shot 負例用）。
 YAML は書き出しのみなので stdlib で直接整形する（依存追加なし）。
+
+【正本について】eval/gold_pairs.yaml が較正データの**凍結正本**（git 管理・コミット済み）。
+本スクリプトは「生成元レポートが vault に存在する間の再生成手段」にすぎない。
+生成元レポート（_Reports/2026-06-26 …）は plan/20 規約上いずれ削除されうる使い捨てだが、
+その時点で gold_pairs.yaml は既に凍結済みなので較正の再現性は失われない。
+生成元パスは config.toml の vault.path から導出する（絶対パス直書きを廃止）。
 """
 
 import re
 import sys
 from pathlib import Path
 
-REPORT = Path("/Users/bobtk/pkg_vault/_Reports/2026-06-26 文献層リンク候補（クロスレイヤー接続）.md")
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from garden import config
+
+REPORT_REL = "_Reports/2026-06-26 文献層リンク候補（クロスレイヤー接続）.md"
 OUT = Path(__file__).parent / "gold_pairs.yaml"
 
 SOURCE_HEAD_RE = re.compile(r"^#### \[\[(.+?)\]\]（(.+?)）")
@@ -18,7 +27,12 @@ LINK_RE = re.compile(r"\[\[([^\]|#]+)")
 
 
 def main() -> None:
-    text = REPORT.read_text(encoding="utf-8")
+    cfg = config.load()
+    report = Path(cfg["vault"]["path"]) / REPORT_REL
+    if not report.exists():
+        sys.exit(f"生成元レポートが無い: {report}\n"
+                 "（凍結正本 gold_pairs.yaml が既にあるなら再生成は不要）")
+    text = report.read_text(encoding="utf-8")
     source = ""
     positives = []
     for line in text.splitlines():
@@ -39,8 +53,9 @@ def main() -> None:
         return '"' + s.replace('"', '\\"') + '"'
 
     lines = [
-        "# 較正用正解データ。生成元: _Reports/2026-06-26 文献層リンク候補（クロスレイヤー接続）",
-        "# 再生成: python3 eval/build_gold.py（手編集しない）",
+        "# 較正用正解データ（凍結正本・git 管理）。手編集しない。",
+        "# 生成元: _Reports/2026-06-26 文献層リンク候補（クロスレイヤー接続）",
+        "# 再生成: .venv/bin/python eval/build_gold.py（生成元レポートが vault に在る間のみ）",
         "positives:",
     ]
     for zettel, targets, source, reason in positives:

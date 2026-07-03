@@ -1,5 +1,6 @@
-# 較正用正解データ。生成元: _Reports/2026-06-26 文献層リンク候補（クロスレイヤー接続）
-# 再生成: python3 eval/build_gold.py（手編集しない）
+# 較正用正解データ（凍結正本・git 管理）。手編集しない。
+# 生成元: _Reports/2026-06-26 文献層リンク候補（クロスレイヤー接続）
+# 再生成: .venv/bin/python eval/build_gold.py（生成元レポートが vault に在る間のみ）
 positives:
   - zettel: "PKGは育て続ける個人の知識の庭である"
     targets:
