@@ -13,21 +13,23 @@ stats_path = "data/stats.json"
 chunk_max_chars = 2000
 
 [embed]
-# 【U 2026-07-03】モデル類は Neo では動かさない。DGX Spark でホストする。
-# URL は DGX 配線時にユーザーが設定（現 data/garden.db はローカルプロトタイプで構築済み）。
-# エンドポイント不達なら埋め込みパスは自動スキップ
-endpoint = "http://REPLACE-WITH-DGX-SPARK:11434"
-# O2 決着（2026-07-03）: bge-m3-8k 採用。
-#   bge-m3-8k(2000字):  recall@10=48.9% / ruri-large(600字, 512tok制約): recall@10=25.5%
+# 【O1 決着 2026-07-04】埋め込みは MBP（M3 Max・128GB）でホスト。DGX は判定専用（--embeddings なし=501）。
+# 想定配置: pkg_robots 本体も MBP で稼働 → 埋め込みは MBP ローカル（localhost）、判定は DGX へ。
+#   pkg_robots を Neo 等の別マシンで動かす場合のみ endpoint を "http://<MBPのホスト名>:11434" に変える。
+# 現 data/garden.db は Neo プロトタイプの bge-m3-8k で構築済み。MBP 移設後に再インデックスで再現する。
+# 不達なら埋め込みパスは自動スキップ。
+# O2 決着（2026-07-03）: bge-m3-8k 採用（recall@10=51.1% / @30=63.8%。ruri-large 25.5% に優越）
+endpoint = "http://localhost:11434"
 # 非対称モデル用 prefix（ruri 等）。bge-m3 は不要なので空
 model = "bge-m3-8k"
 query_prefix = ""
 passage_prefix = ""
 
 [judge]
-# OpenAI 互換。DGX Spark でホストする LLM-jp-4（較正は Claude が `judge --validate` で代行）
-endpoint = "http://REPLACE-WITH-DGX-SPARK:8000/v1"
-model = ""  # LLM-jp-4 のモデル名（O10 で決定）
+# DGX Spark 上の llama.cpp llama-server（OpenAI 互換 /v1、認証なし）。2026-07-04 実測確定。
+# thinking モデルだが llama.cpp は推論を reasoning_content に分離し content は素の JSON を返す。
+endpoint = "http://spark-062c.local:11434/v1"
+model = "llm-jp-4-32b-a3b-thinking-Q4_K_M.gguf"
 
 [candidates]
 # 実測（gold=6/26 レポート確度高47件）: recall@10=51.1% / recall@30=63.8%。

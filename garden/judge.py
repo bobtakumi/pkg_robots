@@ -98,6 +98,24 @@ def call_llm(cfg: dict, system: str, user: str) -> str:
         return json.loads(r.read())["choices"][0]["message"]["content"]
 
 
+def judge_pair(cfg: dict, system: str, user: str, zettel_body: str,
+               chunks: list[str], retries: int = 2) -> tuple[dict | None, str, str]:
+    """1ペアを判定し (判定dict, エラー理由, 最終raw) を返す。
+
+    このビルドの llama-server は response_format(json_object) が 400 で使えないため
+    JSON はプロンプト側で強制する。パース/逐語検証に失敗したら再生成でリトライ
+    （DGX 側の実測知見: 素の生成で素の JSON が安定して返る。稀な崩れをここで吸収）。
+    ネットワーク例外は呼び出し側に投げる。
+    """
+    err, raw = "", ""
+    for _ in range(retries + 1):
+        raw = call_llm(cfg, system, user)
+        d, err = validate_one(raw, zettel_body, chunks)
+        if d is not None:
+            return d, "", raw
+    return None, err, raw
+
+
 def summarize(results: list[dict]) -> dict:
     n = len(results)
     links = [r for r in results if r.get("verdict") == "link"]
@@ -148,6 +166,58 @@ def run_validate(cfg: dict, labels_file: Path, export_file: Path) -> None:
     print(f"→ {out.relative_to(root)}")
 
 
+def run_regress(cfg: dict, export_file: Path) -> None:
+    """M6 回帰: 凍結較正セットを実エンドポイント（LLM-jp-4）で判定し gold と照合する。
+
+    Claude 代役時（run_validate）と同じ較正セット・同じ検証を使い、
+    妥当率・gold 一致・非gold link 率を比較して本番投入の可否を判断する。
+    """
+    root: Path = cfg["_root"]
+    if not cfg["judge"]["model"]:
+        sys.exit("config.toml の [judge].model が未設定")
+    system = load_system_prompt(root)
+    export = json.loads(export_file.read_text(encoding="utf-8"))
+    results = []
+    for i, p in enumerate(export):
+        user = build_user(p, p["zettel_body"], p["chunks"])
+        try:
+            d, err, _raw = judge_pair(cfg, system, user, p["zettel_body"], p["chunks"])
+        except Exception as e:  # noqa: BLE001 — 1件の失敗で回帰全体を落とさない
+            results.append({"id": p["id"], "gold": p["gold"], "invalid": True,
+                            "error": f"call失敗: {type(e).__name__}", "zettel_title": p["zettel_title"],
+                            "lit_title": p["lit_title"]})
+            print(f"[{i+1}/{len(export)}] {p['id']} CALL-FAIL", file=sys.stderr)
+            continue
+        rec = {"id": p["id"], "gold": p["gold"], "zettel_title": p["zettel_title"],
+               "lit_title": p["lit_title"], "score": p["score"]}
+        rec.update(d if d else {"invalid": True, "error": err, "raw": _raw[:300]})
+        results.append(rec)
+        print(f"[{i+1}/{len(export)}] {p['id']} gold={p['gold']} "
+              f"→ {(d or {}).get('verdict', 'INVALID')}", file=sys.stderr)
+
+    stats = summarize(results)
+    gold_pos = [r for r in results if r["gold"]]
+    gold_link = [r for r in gold_pos if r.get("verdict") == "link"]
+    nongold = [r for r in results if not r["gold"]]
+    nongold_link = [r for r in nongold if r.get("verdict") == "link"]
+    stats["gold_agreement"] = f"{len(gold_link)}/{len(gold_pos)}"
+    stats["nongold_link_rate"] = f"{len(nongold_link)}/{len(nongold)}"
+    stats["model"] = cfg["judge"]["model"]
+
+    out = root / "data" / "findings_regress.json"
+    out.write_text(json.dumps(results, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(json.dumps(stats, ensure_ascii=False, indent=1))
+    print("-- Claude 代役時: valid 35/35・gold一致 19/20・非gold link 1/15 --")
+    for r in results:
+        if r.get("invalid"):
+            print(f"  invalid: {r['id']} {r.get('error')}")
+        elif r["gold"] and r.get("verdict") == "skip":
+            print(f"  gold なのに skip: {r['id']} {r['zettel_title'][:20]} → {r['lit_title'][:28]}")
+        elif not r["gold"] and r.get("verdict") == "link":
+            print(f"  非gold を link: {r['id']} {r['zettel_title'][:20]} → {r['lit_title'][:28]}（{r.get('reason','')[:40]}）")
+    print(f"→ {out.relative_to(root)}")
+
+
 def run(cfg: dict, limit: int) -> None:
     """通常モード: エンドポイントで判定（LLM-jp-4 / Ollama 等、M6 で本配線）。"""
     root: Path = cfg["_root"]
@@ -160,8 +230,7 @@ def run(cfg: dict, limit: int) -> None:
     for i, p in enumerate(pairs):
         z_body, chunks = fetch_pair_texts(con, p["zettel_path"], p["lit_path"],
                                           p.get("best_chunk_seq"))
-        raw = call_llm(cfg, system, build_user(p, z_body, chunks))
-        d, err = validate_one(raw, z_body, chunks)
+        d, err, raw = judge_pair(cfg, system, build_user(p, z_body, chunks), z_body, chunks)
         rec = dict(p)
         rec.update(d if d else {"invalid": True, "error": err, "raw": raw[:400]})
         results.append(rec)
