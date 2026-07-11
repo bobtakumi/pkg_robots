@@ -23,11 +23,13 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 
 ## MBP（M3 Max・埋め込みホスト・robot 本体）
 
-- [ ] **稼働・疎通の事前チェック**（2026-07-11 棚卸しより。※同日時点で MBP は Tailscale 上オフライン＝要復帰）:
-  ① Tailscale で bobmbp が active ② vault 同期（Neo 側の未 push コミットが bare repo へ届き、MBP 作業コピーが pull 済み）
-  ③ DGX 到達 `curl -s --max-time 6 http://spark-062c.local:11434/v1/models` ④ Ollama 常駐＋`bge-m3-8k` 存在
-  ⑤ `python -m garden index` 再実行で期待値（notes ≈ 796・zettel 124・chunks 全埋め込み）に近いこと。
-  ズレたら `judge --regress` で基準（JSON妥当 29/35・gold 17/20・非gold link 11/15）との悪化を確認。
+- [ ] **稼働・疎通の事前チェック**（2026-07-11 時点で MBP は Tailscale 上オフライン＝まず復帰。レポート再設計の実装とは独立に進められる）:
+  ① MBP をネットワーク復帰させ、Tailscale で bobmbp が active になること（スリープ／Tailscale 停止／省電力設定を疑う。週次自動実行はこれの常時成立が前提）。
+  ② vault 同期: Neo に 2026-07-11 の未 push コミットが12件以上ある（設計正本・整合性掃討）。MBP 復帰後、Neo で Obsidian を開けば obsidian-git が自動 push（手動なら Neo で `git -C ~/pkg_vault push`）→ MBP の vault 作業コピーで pull。
+  ③ MBP で `~/pkg_robots` と `~/dev-hub` を `git pull`（本引き継ぎと実装メモを取得）。
+  ④ DGX 到達: `curl -s --max-time 6 http://spark-062c.local:11434/v1/models` がモデルを返す。⑤ Ollama 常駐＋`bge-m3-8k` が存在。
+  ⑥ vault 同期後に `python -m garden index` を再実行。期待値は notes 780 前後（従来 796 から 2026-07-11 の整合性掃討で PMPP スタブ16件が削除済み）・zettel 124・chunks 全埋め込み。
+  大きくズレたら `judge --regress` で基準（JSON妥当 29/35・gold 17/20・非gold link 11/15）からの悪化を確認。
   ※ Neo クローンの `data/` はプロト由来で本番 `findings.json` 未生成。本番サイクルは MBP 側で回す。
 - [ ] **M5 週次サイクルの初回本番実行**（手順は `docs/HANDOFF-MBP.md` §3.6、レポート再設計の実装後は新体裁で）:
   `candidates` → `judge --limit 40` → `report`。
