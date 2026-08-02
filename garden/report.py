@@ -3,8 +3,10 @@
 findings（judge の link 判定）から上位数件を選び、Vault の
 `_Reports/suggest-YYYYMMDD.md` に提案レポートを書く（plan/20 の形式を継承）。
 
+**sheet へ移行済み。週次は `garden sheet`（判定シート）を使う**（このファイルは互換のため残置）。
+
 Ch9 トーン: 少数（上限5件）・非一括・使い捨てレポート。リンクの実挿入は常に人間。
-Vault への書き込みはこのファイルのみ（read+propose の唯一の例外パス）。
+Vault への書き込み例外パスの一つ（もう一つは sheet.py の garden-weekly）。
 """
 
 import json

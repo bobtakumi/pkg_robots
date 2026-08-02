@@ -28,7 +28,7 @@
 
 ## このリポジトリの要点
 
-- **Vault（`~/pkg_vault`）へは read + propose**。書き込みは `_Reports/suggest-YYYYMMDD.md` のみ。それ以外は読むだけ。
+- **Vault（`~/pkg_vault`）へは read + propose**。書き込みは `_Reports/garden-weekly-YYYYMMDD.md`（judgment sheet・`garden sheet`）と旧 `_Reports/suggest-YYYYMMDD.md`（`garden report`・移行済み）のみ。それ以外は読むだけ。
 - 全体像・経緯・落とし穴は `docs/00-START-HERE.md`。環境構築（venv・Ollama・索引・回帰）は
   `docs/HANDOFF-MBP.md`＝**一回性のセットアップ文書**（次の一手の正本はこの repo の `HANDOFF.md`）。
 - **judge まわりの触ってはいけないもの**（根拠は `docs/HANDOFF-MBP.md` §4）:

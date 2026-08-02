@@ -37,6 +37,23 @@ model = "llm-jp-4-32b-a3b-thinking-Q4_K_M.gguf"
 # precision 優先（週5件の提案なので recall より誤提案を減らす方が価値が高い）。
 min_confidence = 5
 
+[sheet]
+# 週次判定シート1枚あたりの提案数上限（7/11 設計「目安15分で返せる量」）。
+# 上限を超えた提案は保留として proposals.jsonl に残り、次回のシートへ持ち越す。
+max_proposals = 5
+
+[lint]
+# タグ統制語彙（2026-08-02「成熟度とタグの運用基準（確定）」の15種）。
+# 主題軸11 + 活動軸 project/ 2 + 出典軸 source/ 2。語彙の増減は運用基準の改訂とセットで行う。
+allowed_tags = [
+  "PKG", "Emergence", "BuJo", "Recovery", "Unblock", "Driver", "Career",
+  "PJOps", "AIEng", "AIBPR", "KM",
+  "project/TCALab", "project/GPU-sensei",
+  "source/management", "source/client",
+]
+# wikilink の解決を検査する対象（未解決は「起票待ちキュー」として別枠表示・エラーにしない）
+link_scope = ["2_Permanent/", "1_Literature/"]
+
 [candidates]
 # 実測（gold=6/26 レポート確度高47件）: recall@10=51.1% / recall@30=63.8%。
 # 候補段は recall 重視で 30 に設定し、絞り込みは judge（M3）が担う。

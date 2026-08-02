@@ -1,0 +1,241 @@
+{
+ "meta": {
+  "purpose": "統合/廃棄提案のアトミック性判定の較正 gold（R6 の再現テスト用）",
+  "source": [
+   "~/pkg_vault/_Reports/review-bundles/2026-08-02_permanent-batch0/views/判定1-統合の是非.md（ユーザー判定の正本）",
+   "~/pkg_vault/_Reports/2026-08-02 Permanent再整理 04 統合・廃棄・代筆提案.md（起草Aの判定）",
+   "~/pkg_vault/_Reports/2026-08-02 Permanent再整理 05 統合案のアトミック性再判定.md（Fable の再判定と判定基準）"
+  ],
+  "criteria": "05 の基準A（統合可: A1同一主張の言い換え/A2親の箇条書きの機械的子ノート化/A3問いの重複/A4「一環」自己申告）と基準B（存続: B1同じ枠組みの別対象への適用/B2抽象度の階層違い/B3別文脈から現に呼ばれている口）",
+  "note": "vault の該当ノートは 2026-08-02 に判定どおり適用済み。本ファイルは適用前の状態に対する判定を記録する",
+  "created": "2026-08-03"
+ },
+ "cases": [
+  {
+   "id": "A-1",
+   "note": "カテゴリ分けも役に立てばよい",
+   "merge_target": "定義は役に立てば良い",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B1"
+  },
+  {
+   "id": "A-2",
+   "note": "カテゴリわけは多様性を持つ",
+   "merge_target": "定義は役に立てば良い",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B1"
+  },
+  {
+   "id": "A-3",
+   "note": "カテゴリ分けの発展はPKGに倣える",
+   "merge_target": "目的ドリブンで自発的な発展に任せる",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B1+B3"
+  },
+  {
+   "id": "A-4",
+   "note": "好奇心はナレッジワークの重要な武器",
+   "merge_target": "好奇心が内在する最大のドライバ",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B3"
+  },
+  {
+   "id": "A-5",
+   "note": "好奇心に従って動けている状態が目標",
+   "merge_target": "「どんな状態になっていたいか」を目標とする",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B2+B3"
+  },
+  {
+   "id": "A-6",
+   "note": "底が1以上であることを保証するのがDSの役割",
+   "merge_target": "指数関数の底を必ず1以上にする",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B2+B3"
+  },
+  {
+   "id": "A-7",
+   "note": "PKGで自分の能力を何千倍にも拡大する",
+   "merge_target": "車とガジェットは、人間の能力を何千倍も拡大する",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B1"
+  },
+  {
+   "id": "A-8",
+   "note": "GPUプログラミングは自分の能力拡張",
+   "merge_target": "車とガジェットは、人間の能力を何千倍も拡大する",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B3"
+  },
+  {
+   "id": "A-9",
+   "note": "検証すべき技術を常に問い続ける",
+   "merge_target": "どのような技術を検証するべきか？",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B2"
+  },
+  {
+   "id": "A-10",
+   "note": "週末プランではこれができたらいいなを示す",
+   "merge_target": "平日モードの自分が週末モードの自分にディスパッチ",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B2"
+  },
+  {
+   "id": "A-11",
+   "note": "グラフとクラスタリングの手法が適用できる",
+   "merge_target": "PKGを育て有効活用するためにネットワーク理論を学ぶ",
+   "drafter_verdict": "merge",
+   "fable_verdict": "keep",
+   "user_verdict": "keep",
+   "criteria": "B2+B3"
+  },
+  {
+   "id": "B-1",
+   "note": "Zeigarnik効果が発生しがち",
+   "merge_target": "Zeigarnik効果を戦略的に避ける",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A1"
+  },
+  {
+   "id": "B-2",
+   "note": "分類も自発的な発展に任せる",
+   "merge_target": "カテゴリ分けの発展はPKGに倣える",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A1",
+   "note_extra": "統合先は起草Aの「目的ドリブンで…」から変更"
+  },
+  {
+   "id": "B-3",
+   "note": "PJアウトプット内容は必ず抑える",
+   "merge_target": "PJスケジュールは必ず抑える",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A4"
+  },
+  {
+   "id": "B-4",
+   "note": "ラボで検証すべき最新技術をどのように選定するのか？",
+   "merge_target": "どのような技術を検証するべきか？",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A3"
+  },
+  {
+   "id": "B-5",
+   "note": "Hackableな技術で技術力育成",
+   "merge_target": "Hackableな技術を選ぶ",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A2"
+  },
+  {
+   "id": "B-6",
+   "note": "Hackableな技術でロックイン回避",
+   "merge_target": "Hackableな技術を選ぶ",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A2"
+  },
+  {
+   "id": "B-7",
+   "note": "Hackableな技術でないと達成できないものがある",
+   "merge_target": "Hackableな技術を選ぶ",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A2"
+  },
+  {
+   "id": "B-8",
+   "note": "有効性ハーネスはLLMの能力を拡張する",
+   "merge_target": "ハーネスを3カテゴリに分類",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A2"
+  },
+  {
+   "id": "B-9",
+   "note": "安全性ハーネスはエージェントが安全に自立駆動する環境を提供",
+   "merge_target": "ハーネスを3カテゴリに分類",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A2"
+  },
+  {
+   "id": "B-10",
+   "note": "ハーネス全体を安全かつ再現性高くデプロイ",
+   "merge_target": "ハーネスを3カテゴリに分類",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A2"
+  },
+  {
+   "id": "B-11",
+   "note": "ハーネスを分類することで他社が何に取り組んでいるのかを知る",
+   "merge_target": "ハーネスのカテゴリ整理が求められている",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A2"
+  },
+  {
+   "id": "B-12",
+   "note": "疲れた週末を振り返り改善を検討",
+   "merge_target": "週末は回復優先で取り組む",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A1"
+  },
+  {
+   "id": "B-13",
+   "note": "人の相互作用を情報アーキテクチャとして捉える",
+   "merge_target": "IAを切り口に人への興味を持つ",
+   "drafter_verdict": "merge",
+   "fable_verdict": "merge",
+   "user_verdict": "merge",
+   "criteria": "A1"
+  },
+  {
+   "id": "C-1",
+   "note": "ソフトウェア開発も自発的発展に任せる",
+   "merge_target": null,
+   "drafter_verdict": "delete",
+   "fable_verdict": "delete",
+   "user_verdict": "delete",
+   "criteria": "B1形式だが本文ゼロ・呼び出しゼロ・材料なし"
+  }
+ ]
+}

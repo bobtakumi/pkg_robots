@@ -22,7 +22,14 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
 埋め込みは Ollama + `bge-m3-8k`（`ollama create bge-m3-8k -f Modelfile.bge-m3-8k` で作成）。
 判定は DGX の LLM-jp-4（`config.toml` の `[judge]`）。設定は `config.toml`、出力は `data/`（git 管理外）。
 
-## 状態（2026-07-11）
+## 状態（2026-08-03）
+
+- **R1+R2 実装完了（2026-08-03）**: 判定シート駆動の庭仕事の基盤 — `garden sheet`（判定シート生成・安定ID・放置順/Inbox,Seeding優先）・
+  `garden collect`（チェック回収・編集検出・decisions/decisions_v2 両書き）・`garden lint`（機械照合と健康診断。リンク切れは
+  「起票待ちキュー」として扱う）・`garden stats`（採用率集計）。M5 週次レポート再設計はこの sheet 形式に置換して完了。
+  設計正本は vault 側 `_Reports/2026-08-03 Robots拡張プラン（判定シート駆動の庭仕事）.md`。R3 apply 以降は Q1〜Q5 の回答待ち。
+
+## 旧状態（2026-07-11）
 
 - **Phase 1（M0–M4）実装完了・M6 判定側の DGX 本配線と回帰確認まで済み**。
 - **PKG運用改善設計 確定（2026-07-11）**: M5 は「週次庭仕事フロー」として実装する — Zettel 起点の優先度選定（放置期間・Inbox/Seeding 優先）・一枚のレビューノート体裁（根拠引用＋貼るだけ wikilink＋採/否チェックボックス）・チェックボックス回収→`data/decisions.jsonl`・launchd 週次自動実行（MBP）。
