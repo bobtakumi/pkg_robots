@@ -17,6 +17,24 @@ from pathlib import Path
 WIKILINK_RE = re.compile(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]")
 TAG_LINE_RE = re.compile(r"^\s*-\s*[\"']?#?([\w/\-一-龠ぁ-んァ-ヶー]+)[\"']?\s*$")
 INLINE_TAG_RE = re.compile(r"(?<![\w/])#([\w/\-一-龠ぁ-んァ-ヶー]+)")
+INLINE_CODE_RE = re.compile(r"`[^`\n]*`")
+
+
+def strip_code(body: str) -> str:
+    """コードブロックとインラインコードを空白に潰す。
+
+    文献ノートは原典の wikilink 記法・テンプレート変数・TOML のキー名をコード表記で
+    引用している（`[[Note two]]` `[[{{title}} (highlights)]]` `[[step-overrides]]` 等）。
+    これを実リンクとして数えると未解決リンクが誤検知で埋まる（2026-08-03 に14件中11件が誤検知と判明）。
+    """
+    out, in_fence = [], False
+    for line in body.splitlines():
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+            out.append("")
+            continue
+        out.append("" if in_fence else INLINE_CODE_RE.sub(" ", line))
+    return "\n".join(out)
 
 SCHEMA = """
 CREATE TABLE notes (
@@ -245,7 +263,7 @@ def run(cfg: dict, do_embed: bool) -> None:
         title_map.setdefault(n["title"], n["path"])
     links = []
     for n in notes:
-        for m in WIKILINK_RE.finditer(n["body"]):
+        for m in WIKILINK_RE.finditer(strip_code(n["body"])):
             name = m.group(1).strip().split("/")[-1]
             resolved = title_map.get(name)
             links.append((n["path"], name, resolved, 0 if resolved else 1))

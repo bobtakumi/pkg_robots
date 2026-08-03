@@ -16,7 +16,7 @@ import sys
 from datetime import date, datetime
 from pathlib import Path
 
-from .index import INLINE_TAG_RE, WIKILINK_RE, split_frontmatter
+from .index import INLINE_TAG_RE, WIKILINK_RE, split_frontmatter, strip_code
 
 # frontmatter のタグ行（リスト形式）。表記の乱れを見たいので引用符・# は剥がさず捕まえる
 FM_TAG_ITEM_RE = re.compile(r"^\s*-\s*(.+?)\s*$")
@@ -101,6 +101,7 @@ def wikilinks(body: str) -> list[str]:
     未解決に数えると起票待ちキューが画像で埋まる。
     """
     names = []
+    body = strip_code(body)
     for m in WIKILINK_RE.finditer(body):
         if m.start() > 0 and body[m.start() - 1] == "!":
             continue

@@ -33,6 +33,10 @@ def main() -> None:
     p_apply.add_argument("--commit", action="store_true", help="適用後に vault 側でコミットする（push はしない）")
     p_rules = sub.add_parser("rules", help="規則ベースの提案を確認（R4・書き込みはしない）")
     p_rules.add_argument("--json", action="store_true", help="機械可読で出力")
+    p_perm = sub.add_parser("permlink", help="Zettel 間リンクの候補生成（R5・構造と語彙のみ・書き込みなし）")
+    p_perm.add_argument("--ref", help="この vault コミット時点で走査する（較正用）")
+    p_perm.add_argument("--eval", action="store_true", help="大掃除の採用リンクで recall を測る")
+    p_perm.add_argument("--json", action="store_true", help="機械可読で出力")
     p_stats = sub.add_parser("stats", help="採否の集計（全体・種目別の採用率）")
     p_stats.add_argument("--json", action="store_true", help="機械可読で出力")
     args = ap.parse_args()
@@ -74,6 +78,9 @@ def main() -> None:
     elif args.cmd == "rules":
         from . import rules
         rules.run(cfg, as_json=args.json)
+    elif args.cmd == "permlink":
+        from . import permlink
+        permlink.run(cfg, ref=args.ref, do_eval=args.eval, as_json=args.json)
     elif args.cmd == "stats":
         from . import stats
         stats.run(cfg, as_json=args.json)

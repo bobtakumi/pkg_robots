@@ -1,0 +1,401 @@
+{
+ "generated_from": "/Users/bobtk/pkg_vault/_Reports/review-bundles/2026-08-02_permanent-links/views",
+ "note": "大掃除バッチ1〜6 の人間判定。accepted=つなぐべきペア（正例）、rejected=つながない（負例）",
+ "counts": {
+  "提案（全種別）": 159,
+  "Permanent内リンク": 29,
+  "解決できた": 29,
+  "解決できない": 0,
+  "accepted": 28,
+  "rejected": 0,
+  "判定なし・両方チェック": 1
+ },
+ "pairs": [
+  {
+   "sheet": "バッチ1-PKGと自発的発展.md",
+   "no": "6-1",
+   "human": "accepted",
+   "source_title": "PKGを育て有効活用するためにネットワーク理論を学ぶ",
+   "source_path": "2_Permanent/Zettelkasten/PKGを育て有効活用するためにネットワーク理論を学ぶ.md",
+   "targets": [
+    {
+     "title": "PKGは育て続ける個人の知識の庭である",
+     "path": "2_Permanent/Zettelkasten/PKGは育て続ける個人の知識の庭である.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ1-PKGと自発的発展.md",
+   "no": "9-2",
+   "human": "accepted",
+   "source_title": "ナレッジとは何か?",
+   "source_path": "2_Permanent/Zettelkasten/ナレッジとは何か?.md",
+   "targets": [
+    {
+     "title": "暗黙知の形式知化とPKGは異なるのでは？",
+     "path": "2_Permanent/Zettelkasten/暗黙知の形式知化とPKGは異なるのでは？.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ1-PKGと自発的発展.md",
+   "no": "15-2",
+   "human": "accepted",
+   "source_title": "目的ドリブンで自発的な発展に任せる",
+   "source_path": "2_Permanent/Zettelkasten/目的ドリブンで自発的な発展に任せる.md",
+   "targets": [
+    {
+     "title": "カテゴリ分けの発展はPKGに倣える",
+     "path": "2_Permanent/Zettelkasten/カテゴリ分けの発展はPKGに倣える.md"
+    },
+    {
+     "title": "新技術検証対象も自発的に発展",
+     "path": "2_Permanent/Zettelkasten/新技術検証対象も自発的に発展.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ2-BuJoとタスク運用.md",
+   "no": "1-2",
+   "human": "accepted",
+   "source_title": "BuJoで意思決定を自分の手に取り戻す",
+   "source_path": "2_Permanent/Zettelkasten/BuJoで意思決定を自分の手に取り戻す.md",
+   "targets": [
+    {
+     "title": "自分の内部のコントロールを自分の手に取り戻す",
+     "path": "2_Permanent/Zettelkasten/自分の内部のコントロールを自分の手に取り戻す.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ2-BuJoとタスク運用.md",
+   "no": "11-2",
+   "human": "accepted",
+   "source_title": "戦略的な摩擦により本当に必要なものを見極める",
+   "source_path": "2_Permanent/Zettelkasten/戦略的な摩擦により本当に必要なものを見極める.md",
+   "targets": [
+    {
+     "title": "紙の戦略的摩擦をiPadで再現する",
+     "path": "2_Permanent/Zettelkasten/紙の戦略的摩擦をiPadで再現する.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ2-BuJoとタスク運用.md",
+   "no": "16-1",
+   "human": "accepted",
+   "source_title": "仕事を週末持ち出しも一部やむなし",
+   "source_path": "2_Permanent/Zettelkasten/仕事を週末持ち出しも一部やむなし.md",
+   "targets": [
+    {
+     "title": "好奇心が内在する最大のドライバ",
+     "path": "2_Permanent/Zettelkasten/好奇心が内在する最大のドライバ.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ2-BuJoとタスク運用.md",
+   "no": "20-3",
+   "human": "accepted",
+   "source_title": "振り返りはホワイトボードアプリで実施",
+   "source_path": "2_Permanent/Zettelkasten/振り返りはホワイトボードアプリで実施.md",
+   "targets": [
+    {
+     "title": "ホワイトボードではエッジもチェック",
+     "path": "2_Permanent/Zettelkasten/ホワイトボードではエッジもチェック.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ2-BuJoとタスク運用.md",
+   "no": "21-1",
+   "human": "accepted",
+   "source_title": "平日モードの自分が週末モードの自分にディスパッチ",
+   "source_path": "2_Permanent/Zettelkasten/平日モードの自分が週末モードの自分にディスパッチ.md",
+   "targets": [
+    {
+     "title": "Zeigarnik効果を戦略的に避ける",
+     "path": "2_Permanent/Zettelkasten/Zeigarnik効果を戦略的に避ける.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ3-ドライバとキャリア.md",
+   "no": "1-2",
+   "human": "accepted",
+   "source_title": "好奇心が内在する最大のドライバ",
+   "source_path": "2_Permanent/Zettelkasten/好奇心が内在する最大のドライバ.md",
+   "targets": [
+    {
+     "title": "幸せは役にたつアクティビティの副産物",
+     "path": "2_Permanent/Zettelkasten/幸せは役にたつアクティビティの副産物.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ3-ドライバとキャリア.md",
+   "no": "8-1",
+   "human": "accepted",
+   "source_title": "幸せは役にたつアクティビティの副産物",
+   "source_path": "2_Permanent/Zettelkasten/幸せは役にたつアクティビティの副産物.md",
+   "targets": [
+    {
+     "title": "好奇心とニーズが一致した事例を集める",
+     "path": "2_Permanent/Zettelkasten/好奇心とニーズが一致した事例を集める.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ3-ドライバとキャリア.md",
+   "no": "14-1",
+   "human": "accepted",
+   "source_title": "ラボの駆動力はAIと挑戦意欲",
+   "source_path": "2_Permanent/Zettelkasten/ラボの駆動力はAIと挑戦意欲.md",
+   "targets": [
+    {
+     "title": "好奇心が内在する最大のドライバ",
+     "path": "2_Permanent/Zettelkasten/好奇心が内在する最大のドライバ.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ3-ドライバとキャリア.md",
+   "no": "14-2",
+   "human": "accepted",
+   "source_title": "ラボの駆動力はAIと挑戦意欲",
+   "source_path": "2_Permanent/Zettelkasten/ラボの駆動力はAIと挑戦意欲.md",
+   "targets": [
+    {
+     "title": "指数関数の底を必ず1以上にする",
+     "path": "2_Permanent/Zettelkasten/指数関数の底を必ず1以上にする.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ3-ドライバとキャリア.md",
+   "no": "15-2",
+   "human": "accepted",
+   "source_title": "ロールを目標とすると脆い",
+   "source_path": "2_Permanent/Zettelkasten/ロールを目標とすると脆い.md",
+   "targets": [
+    {
+     "title": "外部に依存してよいものとそうでないものの境界は代替可能性",
+     "path": "2_Permanent/Zettelkasten/外部に依存してよいものとそうでないものの境界は代替可能性.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ3-ドライバとキャリア.md",
+   "no": "16-2",
+   "human": "accepted",
+   "source_title": "ロバストなキャリア目標を考える",
+   "source_path": "2_Permanent/Zettelkasten/ロバストなキャリア目標を考える.md",
+   "targets": [
+    {
+     "title": "ドライバーをキャリア形成に活かす",
+     "path": "2_Permanent/Zettelkasten/ドライバーをキャリア形成に活かす.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ3-ドライバとキャリア.md",
+   "no": "17-1",
+   "human": "accepted",
+   "source_title": "能力開発してタスクのコントロールを手にいれる",
+   "source_path": "2_Permanent/Zettelkasten/能力開発してタスクのコントロールを手にいれる.md",
+   "targets": [
+    {
+     "title": "好奇心とニーズが一致した事例を集める",
+     "path": "2_Permanent/Zettelkasten/好奇心とニーズが一致した事例を集める.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ4-AI駆動開発とPJ運営.md",
+   "no": "5-2",
+   "human": "accepted",
+   "source_title": "AI駆動開発は開発ステップの有効性を上げるもの",
+   "source_path": "2_Permanent/Zettelkasten/AI駆動開発は開発ステップの有効性を上げるもの.md",
+   "targets": [
+    {
+     "title": "試行を爆速にすることで指数関数的に改善",
+     "path": "2_Permanent/Zettelkasten/試行を爆速にすることで指数関数的に改善.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ4-AI駆動開発とPJ運営.md",
+   "no": "12-1",
+   "human": "accepted",
+   "source_title": "調達案件のアセットをTCAが主体的に展開する",
+   "source_path": "2_Permanent/Zettelkasten/調達案件のアセットをTCAが主体的に展開する.md",
+   "targets": [
+    {
+     "title": "ラボの目的は挑戦・共有・展開",
+     "path": "2_Permanent/Zettelkasten/ラボの目的は挑戦・共有・展開.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ4-AI駆動開発とPJ運営.md",
+   "no": "12-2",
+   "human": "accepted",
+   "source_title": "調達案件のアセットをTCAが主体的に展開する",
+   "source_path": "2_Permanent/Zettelkasten/調達案件のアセットをTCAが主体的に展開する.md",
+   "targets": [
+    {
+     "title": "社内ナレッジのシェアポエージェント作成でナレッジMVP",
+     "path": "2_Permanent/Zettelkasten/社内ナレッジのシェアポエージェント作成でナレッジMVP.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ4-AI駆動開発とPJ運営.md",
+   "no": "14-1",
+   "human": "accepted",
+   "source_title": "PJスケジュールは必ず抑える",
+   "source_path": "2_Permanent/Zettelkasten/PJスケジュールは必ず抑える.md",
+   "targets": [
+    {
+     "title": "優先タスクは期限・工数・必要バッファを可視化",
+     "path": "2_Permanent/Zettelkasten/優先タスクは期限・工数・必要バッファを可視化.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ4-AI駆動開発とPJ運営.md",
+   "no": "16-1",
+   "human": "accepted",
+   "source_title": "直接参加していないPJキャッチアップは観点を絞る",
+   "source_path": "2_Permanent/Zettelkasten/直接参加していないPJキャッチアップは観点を絞る.md",
+   "targets": [
+    {
+     "title": "大量の情報をReductionして意味のある示唆を得る",
+     "path": "2_Permanent/Zettelkasten/大量の情報をReductionして意味のある示唆を得る.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ5-エージェント技術とGPU.md",
+   "no": "6-1",
+   "human": "accepted",
+   "source_title": "ハーネスのカテゴリ整理が求められている",
+   "source_path": "2_Permanent/Zettelkasten/ハーネスのカテゴリ整理が求められている.md",
+   "targets": [
+    {
+     "title": "ラボで最新技術を検証",
+     "path": "2_Permanent/Zettelkasten/ラボで最新技術を検証.md"
+    },
+    {
+     "title": "ハーネスを3カテゴリに分類",
+     "path": "2_Permanent/Zettelkasten/ハーネスを3カテゴリに分類.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ5-エージェント技術とGPU.md",
+   "no": "8-1",
+   "human": "accepted",
+   "source_title": "ハーネスを分類することで何に取り組むべきかを検討する",
+   "source_path": "2_Permanent/Zettelkasten/ハーネスを分類することで何に取り組むべきかを検討する.md",
+   "targets": [
+    {
+     "title": "ハーネスを3カテゴリに分類",
+     "path": "2_Permanent/Zettelkasten/ハーネスを3カテゴリに分類.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ5-エージェント技術とGPU.md",
+   "no": "13-2",
+   "human": "accepted",
+   "source_title": "GPUプログラミングの教科書を執筆する",
+   "source_path": "2_Permanent/Zettelkasten/GPUプログラミングの教科書を執筆する.md",
+   "targets": [
+    {
+     "title": "Hackableな技術を選ぶ",
+     "path": "2_Permanent/Zettelkasten/Hackableな技術を選ぶ.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ6-ラボと組織KM.md",
+   "no": "1-1",
+   "human": "both",
+   "source_title": "テックコア向けの教育カリキュラムが求められている",
+   "source_path": "2_Permanent/Zettelkasten/テックコア向けの教育カリキュラムが求められている.md",
+   "targets": [
+    {
+     "title": "ラボで最新技術を検証",
+     "path": "2_Permanent/Zettelkasten/ラボで最新技術を検証.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ6-ラボと組織KM.md",
+   "no": "2-1",
+   "human": "accepted",
+   "source_title": "社内ナレッジのシェアポエージェント作成でナレッジMVP",
+   "source_path": "2_Permanent/Zettelkasten/社内ナレッジのシェアポエージェント作成でナレッジMVP.md",
+   "targets": [
+    {
+     "title": "ナレッジとして何を貯めるのかはPKGに任せる",
+     "path": "2_Permanent/Zettelkasten/ナレッジとして何を貯めるのかはPKGに任せる.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ6-ラボと組織KM.md",
+   "no": "4-1",
+   "human": "accepted",
+   "source_title": "ラボの目的は挑戦・共有・展開",
+   "source_path": "2_Permanent/Zettelkasten/ラボの目的は挑戦・共有・展開.md",
+   "targets": [
+    {
+     "title": "社内ナレッジのシェアポエージェント作成でナレッジMVP",
+     "path": "2_Permanent/Zettelkasten/社内ナレッジのシェアポエージェント作成でナレッジMVP.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ6-ラボと組織KM.md",
+   "no": "4-2",
+   "human": "accepted",
+   "source_title": "ラボの目的は挑戦・共有・展開",
+   "source_path": "2_Permanent/Zettelkasten/ラボの目的は挑戦・共有・展開.md",
+   "targets": [
+    {
+     "title": "調達案件のアセットをTCAが主体的に展開する",
+     "path": "2_Permanent/Zettelkasten/調達案件のアセットをTCAが主体的に展開する.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ6-ラボと組織KM.md",
+   "no": "8-2",
+   "human": "accepted",
+   "source_title": "IMEでデスクワークのナレッジをキャプチャ",
+   "source_path": "2_Permanent/Zettelkasten/IMEでデスクワークのナレッジをキャプチャ.md",
+   "targets": [
+    {
+     "title": "ナレッジとして何を貯めるのかはPKGに任せる",
+     "path": "2_Permanent/Zettelkasten/ナレッジとして何を貯めるのかはPKGに任せる.md"
+    }
+   ]
+  },
+  {
+   "sheet": "バッチ6-ラボと組織KM.md",
+   "no": "11-1",
+   "human": "accepted",
+   "source_title": "新技術の選定対象は既存技術でカバーできないものをみつける",
+   "source_path": "2_Permanent/Zettelkasten/新技術の選定対象は既存技術でカバーできないものをみつける.md",
+   "targets": [
+    {
+     "title": "検証すべき技術を常に問い続ける",
+     "path": "2_Permanent/Zettelkasten/検証すべき技術を常に問い続ける.md"
+    }
+   ]
+  }
+ ],
+ "unresolved": []
+}

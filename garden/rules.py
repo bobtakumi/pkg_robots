@@ -57,30 +57,19 @@ def _first_tag(note: dict) -> str:
     return "Inbox"
 
 
-def build(cfg: dict, notes: list[dict], res: dict) -> list[dict]:
-    """lint の結果から未提案・未決の rules 提案を作る（proposals.jsonl へは書かない）。"""
-    root: Path = cfg["_root"]
-    existing = load_jsonl(root / "data" / "proposals.jsonl")
-    decided = {d["proposal_id"] for d in load_jsonl(root / "data" / "decisions_v2.jsonl")}
-    # 同じ指摘を毎週出さないための鍵。採否が付いた提案の鍵も含める
-    known = {p.get("rule_key") for p in existing if p.get("rule_key")}
+def current(cfg: dict, notes: list[dict], res: dict) -> dict[str, dict]:
+    """いまの vault から導ける規則ベース提案を rule_key → 中身 で返す（重複抑止をかけない生の集合）。
+
+    `build` はここから未提案のものだけを拾い、`refresh` は保留中の提案の実測値を
+    ここで採り直す。提案を作った週と人間が返す週がずれても、シートには常に現在の数字が載る。
+    """
     by_path = {n["path"]: n for n in notes}
-    batch = date.today().strftime("%Y%m%d")
-    seq = _next_seq(existing, batch)
     today = date.today().isoformat()
     quotas = cfg.get("rules", {})
-    fresh: list[dict] = []
+    out: dict[str, dict] = {}
 
     def emit(rule_key: str, **fields) -> None:
-        nonlocal seq
-        if rule_key in known:
-            return
-        known.add(rule_key)
-        fresh.append({
-            "id": f"p-{batch}-{seq:03d}", "batch": batch, "proposer": "rules",
-            "rule_key": rule_key, "source_refs": [], **fields,
-        })
-        seq += 1
+        out.setdefault(rule_key, fields)
 
     # ① 成熟度（昇格・降格）
     for kind, rows in (("promote", res["promote"]), ("demote", res["demote"])):
@@ -137,7 +126,52 @@ def build(cfg: dict, notes: list[dict], res: dict) -> list[dict]:
                        "まだ書くものがなければ却下でよい（キューに残る）",
              meta={"kind": "new_note", "name": name, "referenced_by": srcs})
 
+    return out
+
+
+def build(cfg: dict, notes: list[dict], res: dict) -> list[dict]:
+    """lint の結果から未提案・未決の rules 提案を作る（proposals.jsonl へは書かない）。"""
+    root: Path = cfg["_root"]
+    existing = load_jsonl(root / "data" / "proposals.jsonl")
+    # 同じ指摘を毎週出さないための鍵。採否が付いた提案の鍵も含める
+    known = {p.get("rule_key") for p in existing if p.get("rule_key")}
+    batch = date.today().strftime("%Y%m%d")
+    seq = _next_seq(existing, batch)
+
+    fresh: list[dict] = []
+    for rule_key, fields in current(cfg, notes, res).items():
+        if rule_key in known:
+            continue
+        fresh.append({
+            "id": f"p-{batch}-{seq:03d}", "batch": batch, "proposer": "rules",
+            "rule_key": rule_key, "source_refs": [], **fields,
+        })
+        seq += 1
     return fresh
+
+
+def refresh(pending: list[dict], live: dict[str, dict]) -> tuple[list[dict], list[dict]]:
+    """保留中の規則ベース提案を現在の実測値へ更新し、条件を満たさなくなったものを落とす。
+
+    提案を作った週と人間が返す週の間に vault は動く。凍結した数字のまま見せると、
+    「発リンク4・被リンク1」と書いてあるのに実際は被リンク2、という食い違いが起きる
+    （2026-08-03 の通し検証で実際に発生）。判断材料は常に現在の実測でなければならない。
+
+    戻り値は (載せてよい提案, 条件が消えた提案)。後者はシートから外す。
+    """
+    alive, obsolete = [], []
+    for p in pending:
+        key = p.get("rule_key")
+        if not key:  # rules 由来でない（文献リンク等）はそのまま通す
+            alive.append(p)
+            continue
+        fields = live.get(key)
+        if fields is None:
+            obsolete.append(p)
+            continue
+        p = {**p, **{k: v for k, v in fields.items() if k != "type"}}
+        alive.append(p)
+    return alive, obsolete
 
 
 def append(cfg: dict, fresh: list[dict]) -> None:

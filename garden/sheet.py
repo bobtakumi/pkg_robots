@@ -369,8 +369,9 @@ def run(cfg: dict, findings_path: Path | None, out: Path | None) -> None:
         print(f"findings なし（{src}）。規則ベースの提案だけでシートを作る")
 
     notes = lint.load_notes(cfg)
+    res = lint.analyze(cfg, notes)
     existing, fresh = build_proposals(cfg, links, notes)
-    fresh += rules.build(cfg, notes, lint.analyze(cfg, notes))
+    fresh += rules.build(cfg, notes, res)
     if fresh:
         with (root / "data" / "proposals.jsonl").open("a", encoding="utf-8") as fp:
             for p in fresh:
@@ -380,6 +381,12 @@ def run(cfg: dict, findings_path: Path | None, out: Path | None) -> None:
     by_path = {n["path"]: n for n in notes}
     done, decided = decided_ids(root), decided_pairs(root)
     pending = [p for p in existing + fresh if _alive(p, by_path, decided, done)]
+    # 規則ベースの提案は作った週の実測値を抱えている。返ってくる週には vault が動いているので
+    # 現在の数字へ採り直し、条件が消えたものはシートから外す（凍結した数字で判断させない）
+    pending, obsolete = rules.refresh(pending, rules.current(cfg, notes, res))
+    if obsolete:
+        print(f"条件が消えた提案 {len(obsolete)} 件をシートから外した"
+              f"（{'、'.join(p['id'] for p in obsolete[:5])}{' ほか' if len(obsolete) > 5 else ''}）")
     today = date.today()
     pending.sort(key=lambda p: order_key(p, by_path, today))
     cap = cfg.get("sheet", {}).get("max_proposals", 5)
