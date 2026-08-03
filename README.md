@@ -15,7 +15,11 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
 .venv/bin/python eval/rank_diag.py            # 正解ペアの順位分布診断（モデル比較用）
 .venv/bin/python -m garden judge --limit 40   # 候補を LLM-jp-4 で判定（M3）
 .venv/bin/python -m garden judge --regress eval/calibration_export.json  # 較正セットで回帰（M6）
-.venv/bin/python -m garden report             # 確信度≥5 でふるい、上位5件を提案レポート化（M4）
+.venv/bin/python -m garden report             # 確信度≥5 でふるい、上位5件を提案レポート化（M4・旧体裁）
+.venv/bin/python -m garden rules              # 規則ベースの提案を確認（R4・書き込みなし）
+.venv/bin/python -m garden sheet              # 週次の判定シートを生成（文献リンク + 規則ベース）
+.venv/bin/python -m garden collect <sheet>    # チェックを回収して decisions に記録
+.venv/bin/python -m garden lint --proposals   # 機械照合と健康診断（+ 提案の適用前提チェック）
 ```
 
 依存: index は標準ライブラリのみ（Python 3.11+）、candidates 以降は `.venv`（numpy）。
@@ -28,6 +32,14 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
   `garden collect`（チェック回収・編集検出・decisions/decisions_v2 両書き）・`garden lint`（機械照合と健康診断。リンク切れは
   「起票待ちキュー」として扱う）・`garden stats`（採用率集計）。M5 週次レポート再設計はこの sheet 形式に置換して完了。
   設計正本は vault 側 `_Reports/2026-08-03 Robots拡張プラン（判定シート駆動の庭仕事）.md`。R3 apply 以降は Q1〜Q5 の回答待ち。
+- **R4 実装完了（2026-08-03）**: 規則ベースの提案生成 `garden rules` を追加し、`garden sheet` が2系統（connector 由来の
+  文献リンク + rules 由来の成熟度・タグ・起票待ちキュー）を1枚に載せるようにした。findings が無い環境でも規則ベースだけで
+  シートが生える（判定 LLM に届かない Mac でも週次が回る）。同じ指摘を毎週出さないよう `rule_key` で重複を抑止し、
+  シート内の枠は `[rules] sheet_quota` で確保する。実測: 昇格候補20件・降格1件を提案化、シート5件生成→ collect が
+  採用/却下を正しく分類（lint --proposals 不整合0）。
+- **提案本文の書き方（2026-08-03 バッチ2 の返却で確定）**: 親＝ノート自身の主張／タブ1つ下げた子＝文献の引用[[リンク]]や帰結。
+  リンク先を読めば分かる定義・手順・列挙は再掲しない。同じ文献箇所を複数ノートで繰り返し引用しない。双方向リンクは目的にしない。
+  原典が扱っていない主題に原典を接続しない。未決は断定せず「未定。候補は◯◯」と書く。複数行を生成する種目（draft/merge/spawn）で必須。
 
 ## 旧状態（2026-07-11）
 

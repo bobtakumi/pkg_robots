@@ -8,6 +8,16 @@ Obsidian で開いてチェック・微修正して返す「一枚のレビュ�
 - 提案ブロックの直前に `<!-- after: p-… -->`、チェックボックスの直前に `<!-- id: p-… -->` を
   埋める。この2つの目印だけを collect が読む（本文は人間が自由に書き換えてよい）
 - 既定の出力先は Vault の `_Reports/`。検証時は必ず `--out` で repo 内に逃がすこと
+
+載せる種目は2系統。connector 由来の文献リンク（findings 経由）と、rules 由来の規則ベース
+提案（R4: 成熟度・タグ・起票待ちキュー）。findings が無い環境（判定 LLM に届かない Mac 等）
+でも rules だけでシートは生える。
+
+提案本文の書き方（2026-08-03 バッチ2 の返却で確定・複数行を書く種目で守る）:
+- 親の箇条書き = ノート自身の主張、タブ1つ下げた子 = 文献の引用[[リンク]]や帰結
+- リンク先を読めば分かる定義・手順・列挙は再掲しない。埋めるのは「その文献が主張にどう効くか」
+- 同じ文献箇所を複数のノートで繰り返し引用しない
+- 未決のことは断定せず「未定。候補は◯◯」と書く
 """
 
 import json
@@ -17,7 +27,7 @@ import sqlite3
 from datetime import date
 from pathlib import Path
 
-from . import lint
+from . import lint, rules
 
 STATUS_PRIORITY = {"Inbox": 0, "Seeding": 0}  # 7/11 設計: Inbox / Seeding を優先
 
@@ -62,6 +72,75 @@ ENTRY = """
 - 接続理由: {rationale}
 - Zettel 側: 「{ev_z}」
 - 文献側: 「{ev_l}」
+
+<!-- id: {pid} -->
+- [ ] 採用
+- [ ] 却下
+"""
+
+RULE_ENTRY = """
+## 提案{n}: {heading}
+
+- 対象: `{target}`{state}
+- 種目: {kind}（規則ベース・機械が決めたのは条件の充足だけ）
+
+**いまの本文**
+
+{body_block}
+
+**提案**{how}
+
+<!-- after: {pid} -->
+{after_block}
+
+**根拠**
+
+- {rationale}
+
+<!-- id: {pid} -->
+- [ ] 採用
+- [ ] 却下
+"""
+
+RULE_NOTE_ENTRY = """
+## 提案{n}: [[{name}]] を起票する
+
+- 対象: `{target}`（まだ存在しないノート）
+- 種目: 起票待ちキュー（規則ベース）
+- 参照元: {refs}
+
+**提案**（このまま新規ノートとして作る。中身は書き換えてよい）
+
+<!-- after: {pid} -->
+{after_block}
+
+**根拠**
+
+- {rationale}
+
+<!-- id: {pid} -->
+- [ ] 採用
+- [ ] 却下
+"""
+
+FLAG_ENTRY = """
+## 提案{n}: {heading}
+
+- 対象: `{target}`
+- 種目: {kind}（指摘のみ・機械では直せない）
+
+**いまの frontmatter**
+
+{body_block}
+
+**提案**（正しい値をこのブロックに書いてから採用する）
+
+<!-- after: {pid} -->
+{after_block}
+
+**根拠**
+
+- {rationale}
 
 <!-- id: {pid} -->
 - [ ] 採用
@@ -183,7 +262,7 @@ def build_proposals(cfg: dict, findings: list[dict], notes: list[dict]) -> tuple
 
 def order_key(p: dict, by_path: dict[str, dict], today: date):
     """放置が長い順・Inbox / Seeding 優先（7/11 設計の優先度選定）。"""
-    n = by_path.get(p["target"], {})
+    n = by_path.get(p["target"]) or {}
     mod = n.get("modified") or date.fromtimestamp(n.get("mtime", 0)) if n else None
     days = (today - mod).days if mod else 0
     return (STATUS_PRIORITY.get(n.get("status", ""), 1), -days)
@@ -194,39 +273,104 @@ def _relation(after: str) -> str:
     return m.group(1) if m else "関連"
 
 
+KIND_LABEL = {"lit_link": "文献リンク", "status": "成熟度", "tag": "タグ", "queue": "起票待ちキュー"}
+
+
+def _render_lit_link(i: int, p: dict, by_path: dict, today: date) -> str:
+    n = by_path[p["target"]]
+    lit = by_path[p["source_refs"][0]]
+    mod = n["modified"] or date.fromtimestamp(n["mtime"])
+    return ENTRY.format(
+        n=i, ztitle=n["title"], link=lit["title"], target=p["target"],
+        status=n["status"] or "（欠落）", modified=mod.isoformat(), days=(today - mod).days,
+        conf=p.get("confidence", "?"), relation=_relation(p["after"]),
+        lit_path=p["source_refs"][0],
+        body_block=fence(n["body"].strip()), after_block=fence(p["after"]), pid=p["id"],
+        rationale=p["rationale"], ev_z=p.get("evidence_zettel", ""),
+        ev_l=p.get("evidence_lit", ""))
+
+
+def _render_rule(i: int, p: dict, by_path: dict) -> str:
+    meta = p.get("meta", {})
+    if p["type"] == "queue":
+        return RULE_NOTE_ENTRY.format(
+            n=i, name=meta.get("name", Path(p["target"]).stem), target=p["target"],
+            refs="、".join(f"`{s}`" for s in meta.get("referenced_by", [])),
+            after_block=fence(p["after"]), pid=p["id"], rationale=p["rationale"])
+
+    n = by_path[p["target"]]
+    if p["type"] == "status":
+        heading = f"[[{n['title']}]] の成熟度を {meta.get('from')} → {meta.get('to')}"
+        return RULE_ENTRY.format(
+            n=i, heading=heading, target=p["target"],
+            state=f"（発リンク{meta.get('out')}・被リンク{meta.get('in')}）",
+            kind=KIND_LABEL["status"], how="（frontmatter のこの1行を書き換える）",
+            body_block=fence(n["body"].strip()), after_block=fence(p["after"]),
+            pid=p["id"], rationale=p["rationale"])
+
+    if p.get("after") is None:  # タグの指摘のみ（機械では直せない）
+        return FLAG_ENTRY.format(
+            n=i, heading=f"[[{n['title']}]] の {meta.get('kind')}", target=p["target"],
+            kind=KIND_LABEL["tag"], body_block=fence(n["fm"].strip()),
+            after_block=fence("（ここに正しい frontmatter の行を書く）"),
+            pid=p["id"], rationale=p["rationale"])
+
+    return RULE_ENTRY.format(
+        n=i, heading=f"[[{n['title']}]] のタグ表記を揃える", target=p["target"], state="",
+        kind=KIND_LABEL["tag"], how="（frontmatter のこの1行を書き換える）",
+        body_block=fence(n["fm"].strip()), after_block=fence(p["after"]),
+        pid=p["id"], rationale=p["rationale"])
+
+
 def render(cfg: dict, picked: list[dict], notes: list[dict], sheet_name: str, today: date) -> str:
     by_path = {n["path"]: n for n in notes}
+    kinds = "・".join(dict.fromkeys(KIND_LABEL.get(p["type"], p["type"]) for p in picked))
     parts = [HEADER.format(today=today.isoformat(), n=len(picked),
-                           kinds="文献リンク", sheet_name=sheet_name)]
+                           kinds=kinds, sheet_name=sheet_name)]
     for i, p in enumerate(picked, 1):
-        n = by_path[p["target"]]
-        lit = by_path[p["source_refs"][0]]
-        mod = n["modified"] or date.fromtimestamp(n["mtime"])
-        parts.append(ENTRY.format(
-            n=i, ztitle=n["title"], link=lit["title"], target=p["target"],
-            status=n["status"] or "（欠落）", modified=mod.isoformat(), days=(today - mod).days,
-            conf=p.get("confidence", "?"), relation=_relation(p["after"]),
-            lit_path=p["source_refs"][0],
-            body_block=fence(n["body"].strip()), after_block=fence(p["after"]), pid=p["id"],
-            rationale=p["rationale"], ev_z=p["evidence_zettel"], ev_l=p["evidence_lit"]))
+        if p["type"] == "lit_link":
+            parts.append(_render_lit_link(i, p, by_path, today))
+        else:
+            parts.append(_render_rule(i, p, by_path))
     parts.append("\n---\n\n判定を書き終えたら回収コマンドを実行する。"
                  "チェックが両方空の提案は保留として `data/proposals.jsonl` に残り、次回のシートに再掲される。\n")
     return "".join(parts)
 
 
+def _alive(p: dict, by_path: dict, decided: set, done: set) -> bool:
+    """まだシートに載せる資格がある提案か（採否済み・対象消滅を落とす）。"""
+    if p["id"] in done:
+        return False
+    if p["type"] == "queue":
+        return p["target"] not in by_path  # 既に起票されたら用済み
+    if p["target"] not in by_path:
+        return False
+    if p["type"] == "lit_link":
+        refs = p.get("source_refs") or []
+        if not refs or refs[0] not in by_path:
+            return False
+        return (p["target"], refs[0]) not in decided
+    return True
+
+
 def run(cfg: dict, findings_path: Path | None, out: Path | None) -> None:
     root: Path = cfg["_root"]
     src = findings_path or (root / "data" / "findings.json")
-    if not src.exists():
-        sys.exit(f"findings が見つからない: {src}（先に garden judge を実行するか --findings で指定）")
-    findings = json.loads(src.read_text(encoding="utf-8"))
     min_conf = cfg.get("report", {}).get("min_confidence", 5)
-    links = [f for f in findings
-             if f.get("verdict") == "link" and f.get("confidence", 0) >= min_conf]
-    links.sort(key=lambda f: (-f.get("confidence", 0), -f.get("score", 0)))
+    links: list[dict] = []
+    if src.exists():
+        findings = json.loads(src.read_text(encoding="utf-8"))
+        links = [f for f in findings
+                 if f.get("verdict") == "link" and f.get("confidence", 0) >= min_conf]
+        links.sort(key=lambda f: (-f.get("confidence", 0), -f.get("score", 0)))
+    elif findings_path is not None:
+        sys.exit(f"findings が見つからない: {src}")
+    else:
+        print(f"findings なし（{src}）。規則ベースの提案だけでシートを作る")
 
     notes = lint.load_notes(cfg)
     existing, fresh = build_proposals(cfg, links, notes)
+    fresh += rules.build(cfg, notes, lint.analyze(cfg, notes))
     if fresh:
         with (root / "data" / "proposals.jsonl").open("a", encoding="utf-8") as fp:
             for p in fresh:
@@ -235,14 +379,19 @@ def run(cfg: dict, findings_path: Path | None, out: Path | None) -> None:
     # 保留（未採否）の既存提案を先に、今回の新規を後に。target が Vault から消えたものは落とす
     by_path = {n["path"]: n for n in notes}
     done, decided = decided_ids(root), decided_pairs(root)
-    pending = [p for p in existing + fresh
-               if p["id"] not in done and p["target"] in by_path
-               and p.get("source_refs", [""])[0] in by_path
-               and (p["target"], p["source_refs"][0]) not in decided]
+    pending = [p for p in existing + fresh if _alive(p, by_path, decided, done)]
     today = date.today()
     pending.sort(key=lambda p: order_key(p, by_path, today))
     cap = cfg.get("sheet", {}).get("max_proposals", 5)
-    picked = pending[:cap]
+    # 種目の偏りを防ぐ: 規則ベースに枠を確保してから残りを埋める（どちらも足りなければ融通する）
+    quota = min(cfg.get("rules", {}).get("sheet_quota", 2), cap)
+    rule_side = [p for p in pending if p["type"] != "lit_link"]
+    link_side = [p for p in pending if p["type"] == "lit_link"]
+    picked = rule_side[:quota] + link_side[:cap - quota]
+    if len(picked) < cap:
+        rest = [p for p in pending if p not in picked]
+        picked += rest[:cap - len(picked)]
+    picked.sort(key=lambda p: order_key(p, by_path, today))
     if not picked:
         print(f"提案0件（confidence>={min_conf} の link {len(links)} 件・"
               f"保留 {len(pending)} 件）。シートは生成しない")

@@ -28,6 +28,8 @@ def main() -> None:
     p_lint = sub.add_parser("lint", help="機械照合と庭の健康診断（R2）")
     p_lint.add_argument("--proposals", action="store_true", help="proposals.jsonl の適用前提も検証")
     p_lint.add_argument("--json", action="store_true", help="機械可読で出力")
+    p_rules = sub.add_parser("rules", help="規則ベースの提案を確認（R4・書き込みはしない）")
+    p_rules.add_argument("--json", action="store_true", help="機械可読で出力")
     p_stats = sub.add_parser("stats", help="採否の集計（全体・種目別の採用率）")
     p_stats.add_argument("--json", action="store_true", help="機械可読で出力")
     args = ap.parse_args()
@@ -63,6 +65,9 @@ def main() -> None:
     elif args.cmd == "lint":
         from . import lint
         lint.run(cfg, as_json=args.json, with_proposals=args.proposals)
+    elif args.cmd == "rules":
+        from . import rules
+        rules.run(cfg, as_json=args.json)
     elif args.cmd == "stats":
         from . import stats
         stats.run(cfg, as_json=args.json)

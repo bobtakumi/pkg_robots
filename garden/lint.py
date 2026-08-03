@@ -216,10 +216,16 @@ def check_proposals(cfg: dict, notes: list[dict]) -> list[dict]:
             continue
         p = json.loads(line)
         note = by_path.get(p["target"])
+        if p.get("type") == "queue":
+            # 起票提案は「まだ無いノート」を作る。既にあるなら用済み（提案が古い）
+            if note is not None:
+                problems.append({"id": p["id"], "kind": "起票済み", "detail": p["target"]})
+            continue
         if note is None:
             problems.append({"id": p["id"], "kind": "target不在", "detail": p["target"]})
             continue
-        if p.get("before") and p["before"].rstrip("\n") not in note["body"]:
+        haystack = note["fm"] if p.get("type") in ("status", "tag") else note["body"]
+        if p.get("before") and p["before"].rstrip("\n") not in haystack:
             problems.append({"id": p["id"], "kind": "before不一致", "detail": p["before"][:60]})
         for name in wikilinks(p.get("after") or ""):
             if resolve(name, idx) is None:
