@@ -273,7 +273,8 @@ def _relation(after: str) -> str:
     return m.group(1) if m else "関連"
 
 
-KIND_LABEL = {"lit_link": "文献リンク", "status": "成熟度", "tag": "タグ", "queue": "起票待ちキュー"}
+KIND_LABEL = {"lit_link": "文献リンク", "status": "成熟度", "tag": "タグ",
+              "queue": "起票待ちキュー", "moc": "MOC収録"}
 
 
 def _render_lit_link(i: int, p: dict, by_path: dict, today: date) -> str:
@@ -299,6 +300,16 @@ def _render_rule(i: int, p: dict, by_path: dict) -> str:
             after_block=fence(p["after"]), pid=p["id"], rationale=p["rationale"])
 
     n = by_path[p["target"]]
+    if p["type"] == "moc":
+        z = Path(meta.get("zettel", "")).stem
+        return RULE_ENTRY.format(
+            n=i, heading=f"[[{n['title']}]] に [[{z}]] を収録する", target=p["target"],
+            state=f"（節「{meta.get('section')}」・タグ {meta.get('tag')}）",
+            kind=KIND_LABEL["moc"],
+            how="（この節見出しの直後に1行足す。節が違うならブロックごと書き換えてよい）",
+            body_block=fence(p["before"] or ""), after_block=fence(p["after"]),
+            pid=p["id"], rationale=p["rationale"])
+
     if p["type"] == "status":
         heading = f"[[{n['title']}]] の成熟度を {meta.get('from')} → {meta.get('to')}"
         return RULE_ENTRY.format(

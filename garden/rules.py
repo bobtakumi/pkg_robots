@@ -126,7 +126,103 @@ def current(cfg: dict, notes: list[dict], res: dict) -> dict[str, dict]:
                        "まだ書くものがなければ却下でよい（キューに残る）",
              meta={"kind": "new_note", "name": name, "referenced_by": srcs})
 
+    # ④ MOC への収録漏れ（タグ→MOC の対応表は config の [moc.map]。実態から導いた表）
+    for m in _moc_gaps(cfg, notes)[:quotas.get("max_moc", 10)]:
+        emit(f"moc:{m['moc_path']}:{m['target']}",
+             type="moc", target=m["moc_path"],
+             before=m["before"], after=m["after"],
+             rationale=f"`{Path(m['target']).stem}` はタグ {m['tag']} を持つが "
+                       f"{Path(m['moc_path']).stem} に載っていない。"
+                       f"{'どの MOC にも載っていないノート。' if m['orphan'] else ''}"
+                       f"収録先の節は「{m['section']}」を推した（既収録ノートとの語の重なりで選定）。"
+                       "節が違うと思ったらこのブロックを直接書き換えてほしい",
+             meta={"kind": "MOC収録", "zettel": m["target"], "tag": m["tag"],
+                   "section": m["section"], "orphan": m["orphan"]})
+
     return out
+
+
+def _moc_gaps(cfg: dict, notes: list[dict]) -> list[dict]:
+    """タグの対応表から見て、載るべき MOC に載っていない Zettel を挙げる。"""
+    from . import permlink
+
+    mapping = (cfg.get("moc", {}) or {}).get("map", {}) or {}
+    if not mapping:
+        return []
+    idx = lint.title_index(notes)
+    moc_by_title = {n["title"]: n for n in notes if n["path"].startswith("2_Permanent/MOC/")}
+    members: dict[str, set[str]] = {}
+    sections: dict[str, list[tuple[str, list[str]]]] = {}
+    for title, n in moc_by_title.items():
+        members[title] = set()
+        secs: list[tuple[str, list[str]]] = []
+        head = None
+        for line in n["body"].splitlines():
+            if line.startswith("#"):
+                head = line.rstrip()
+                secs.append((head, []))
+            for name in lint.wikilinks(line):
+                p = lint.resolve(name, idx)
+                if p and p.startswith("2_Permanent/Zettelkasten/"):
+                    members[title].add(p)
+                    if secs:
+                        secs[-1][1].append(name)
+        sections[title] = secs
+
+    listed = {p for s in members.values() for p in s}
+    gaps = []
+    for n in notes:
+        if not n["path"].startswith("2_Permanent/Zettelkasten/"):
+            continue
+        for tag in sorted(permlink.subject_tags(n)):
+            moc_title = mapping.get(tag)
+            moc = moc_by_title.get(moc_title or "")
+            if moc is None or n["path"] in members.get(moc_title, set()):
+                continue
+            secs = sections.get(moc_title) or []
+            head, _ = max(secs, key=lambda s: _overlap(n["title"], s[1]), default=(None, []))
+            if head is None:
+                continue
+            anchor = _unique_anchor(moc["body"], head)
+            if anchor is None:
+                continue  # 節見出しが一意にならない MOC は機械では差し込み位置を決められない
+            gaps.append({
+                "target": n["path"], "moc_path": moc["path"], "tag": tag,
+                "section": head.lstrip("# ").strip(),
+                "before": anchor, "after": f"{anchor}\n- [[{n['title']}]]",
+                "orphan": n["path"] not in listed,
+            })
+            break  # 1ノートにつき1 MOC まで（タグの数だけ提案しない）
+    # どの MOC にも載っていないノートを先に返す
+    gaps.sort(key=lambda gp: (not gp["orphan"], gp["target"]))
+    return gaps
+
+
+def _unique_anchor(body: str, head: str, max_lines: int = 4) -> str | None:
+    """差し込み位置の目印を一意になるまで下の行へ伸ばす。
+
+    apply は before が本文に1箇所だけ現れることを条件に置換する。同じ節見出しが
+    複数ある MOC（実測: MOC_Mindset）では見出し1行だけでは一意にならないので、
+    続く行を足して一意な塊にする。それでも決まらなければ提案しない。
+    """
+    lines = body.splitlines()
+    try:
+        i = lines.index(head)
+    except ValueError:
+        return None
+    for extra in range(max_lines):
+        block = "\n".join(lines[i:i + 1 + extra])
+        if body.count(block) == 1:
+            return block
+    return None
+
+
+def _overlap(title: str, names: list[str]) -> int:
+    """タイトルと節の既収録ノート名の文字bigram の重なり（節の選定用）。"""
+    from . import permlink
+
+    a = set(permlink.bigrams(title))
+    return max((len(a & set(permlink.bigrams(x))) for x in names), default=0)
 
 
 def build(cfg: dict, notes: list[dict], res: dict) -> list[dict]:

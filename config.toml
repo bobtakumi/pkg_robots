@@ -49,6 +49,29 @@ sheet_quota = 2
 max_status = 20
 max_tag = 20
 max_queue = 10
+max_moc = 10
+
+[moc]
+# タグ → その主題を集めている MOC。2026-08-03 に既存11本の MOC の収録実態から導いた
+# （各タグについて、そのタグを持つノートが最も多く載っている MOC を採用）。
+# 一致率: AIBPR 93% / project/TCALab 86% / KM 86% / BuJo 81% / AIEng 80% / Career 80% /
+#         PKG 65% / Emergence 62% / Driver 53%、Recovery・Unblock・PJOps・GPU-sensei は 100%。
+# Driver だけは MOC_Mindset と MOC_キャリアデザイン に割れているので、提案の当たりは弱い。
+# MOC を新設・改名したらこの表も直す（機械では追えない）。
+[moc.map]
+PKG = "MOC_PKG運用"
+Emergence = "MOC_自発的発展"
+BuJo = "MOC_タスクの進め方"
+Recovery = "MOC_タスクの進め方"
+Unblock = "MOC_手が止まった時のアイデア"
+Driver = "MOC_Mindset"
+Career = "MOC_キャリアデザイン"
+PJOps = "MOC_AI駆動開発"
+AIEng = "MOC_AIEng"
+AIBPR = "MOC_AI駆動開発"
+KM = "MOC_組織KM"
+"project/TCALab" = "MOC_TCALab"
+"project/GPU-sensei" = "MOC_GPU教科書"
 
 [lint]
 # タグ統制語彙（2026-08-02「成熟度とタグの運用基準（確定）」の15種）。
