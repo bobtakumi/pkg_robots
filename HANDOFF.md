@@ -12,9 +12,12 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
   検証済み: 較正 findings からのシート生成・collect の5分類（採用/却下/編集/保留/二重チェック警告）・
   decisions.jsonl 読み側互換・lint の実 vault 走査（起票待ちキュー0・タグ違反0・昇格候補22・完全孤立3）。
   Fable レビュー合格（修正必須なし・推奨4件は反映済み）。
-- [ ] **R3 `garden apply` の実装は保留**: vault 書き込み権限（拡張プラン Q1）のユーザー回答待ち。
-  回答は vault 側レビューバンドル `~/pkg_vault/_Reports/review-bundles/2026-08-03_robots-gardener-plan/views/review.md`（Q1〜Q5）で受ける。
-  なお `lint --proposals` が apply の前提チェック（target 実在・before 一致・リンク解決）として先に動く。
+- [x] ~~**R3 `garden apply`**~~ → **2026-08-03 実装完了**。Q1 回答（2026-08-03 ユーザー）: **robots の
+  `2_Permanent/` 書き込みを許可する。ただしこのチャットと同じく、提案を人間が確認したあとに書き込む**。
+  実装は `decisions_v2.jsonl` の accepted / edited のみを対象とし、before が現在の本文と一字一致するときだけ
+  機械適用・ずれたら差し戻す（Q5 の安全側）。既定 dry-run、`--write` で書き込み、`--commit` で `lit:` コミット
+  （push はしない）。Obsidian 起動中は中止。`data/applied.jsonl` で二重適用を防ぐ。検証は疑似 vault で7項目合格。
+  次の一手: 週次サイクルで一度 `sheet → collect → apply --write --commit` を通しで回して本番確認する。
 - [x] ~~**R4 rules proposer**~~ → **2026-08-03 実装完了**。`garden rules`（確認用・書き込みなし）を追加し、
   `garden sheet` が文献リンクと規則ベース提案（成熟度 status / タグ tag / 起票待ちキュー queue）を1枚に載せる。
   findings が無くてもシートが生える（判定 LLM 不達の環境で週次が止まらない）。重複抑止は `rule_key`、
@@ -53,8 +56,9 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 
 ## 保留・意思決定待ち（ユーザー入力が要るもの）
 
-- [ ] **Robots 拡張プラン（判定シート駆動の庭仕事）の判定待ち**: vault 側 `_Reports/review-bundles/2026-08-03_robots-gardener-plan/views/review.md`（Q1〜Q5・記述回答）。
-  Q1=apply の vault 書き込み権限 / Q2=起草の頭脳の呼び出し方 / Q3=優先順 / Q4=シート置き場 / Q5=編集の適用範囲。
+- [ ] **Robots 拡張プランの残り判定**: vault 側 `_Reports/review-bundles/2026-08-03_robots-gardener-plan/views/review.md`。
+  **Q1 は回答済み（2026-08-03・確認後に書き込み）。Q5 も推奨どおりで実装済み。** 残るのは
+  Q2=起草の頭脳の呼び出し方 / Q3=優先順 / Q4=シート置き場。いずれも R6 まで実装が進む前に決めればよい。
   較正資産: 大掃除の統合是非25件を `eval/cleanup_gold_20260802.json` に gold 化済み（R6 アトミック性判定の再現テスト用）。
 - [ ] **レビューバンドル判定待ち**: `docs/review-bundles/2026-07-07_mbp-onboarding/views/review.md`（RP 5 個・想定 5 分）。
   MBP 移設＋オンボーディングの構成判断の事後承認。✏️/❌ が出たら core を直して view 再派生。

@@ -28,7 +28,8 @@
 
 ## このリポジトリの要点
 
-- **Vault（`~/pkg_vault`）へは read + propose**。書き込みは `_Reports/garden-weekly-YYYYMMDD.md`（judgment sheet・`garden sheet`）と旧 `_Reports/suggest-YYYYMMDD.md`（`garden report`・移行済み）のみ。それ以外は読むだけ。
+- **Vault（`~/pkg_vault`）へは read + propose**。無条件に書けるのは `_Reports/garden-weekly-YYYYMMDD.md`（judgment sheet・`garden sheet`）と旧 `_Reports/suggest-YYYYMMDD.md`（`garden report`・移行済み）のみ。
+  加えて **`2_Permanent/` へは `garden apply` 経由でのみ書ける**（2026-08-03 Q1 回答）。条件は「人間がシートで採用/編集と判定した提案であること」「before が現在の本文と一字一致すること」「Obsidian が起動していないこと」の3つで、いずれかを欠いたら書かずに差し戻す。それ以外の経路・パスは読むだけ。
 - 全体像・経緯・落とし穴は `docs/00-START-HERE.md`。環境構築（venv・Ollama・索引・回帰）は
   `docs/HANDOFF-MBP.md`＝**一回性のセットアップ文書**（次の一手の正本はこの repo の `HANDOFF.md`）。
 - **judge まわりの触ってはいけないもの**（根拠は `docs/HANDOFF-MBP.md` §4）:

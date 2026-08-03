@@ -20,6 +20,8 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
 .venv/bin/python -m garden sheet              # 週次の判定シートを生成（文献リンク + 規則ベース）
 .venv/bin/python -m garden collect <sheet>    # チェックを回収して decisions に記録
 .venv/bin/python -m garden lint --proposals   # 機械照合と健康診断（+ 提案の適用前提チェック）
+.venv/bin/python -m garden apply              # 承認済み提案の適用計画を表示（既定 dry-run）
+.venv/bin/python -m garden apply --write --commit  # 実際に vault へ書き込み、lit: コミットを作る
 ```
 
 依存: index は標準ライブラリのみ（Python 3.11+）、candidates 以降は `.venv`（numpy）。
@@ -37,6 +39,14 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
   シートが生える（判定 LLM に届かない Mac でも週次が回る）。同じ指摘を毎週出さないよう `rule_key` で重複を抑止し、
   シート内の枠は `[rules] sheet_quota` で確保する。実測: 昇格候補20件・降格1件を提案化、シート5件生成→ collect が
   採用/却下を正しく分類（lint --proposals 不整合0）。
+- **R3 実装完了（2026-08-03）**: `garden apply`。Q1 の回答（robots に `2_Permanent/` への書き込みを許す。
+  **ただし人間が確認した提案だけ**）を受けて実装した。適用対象は `decisions_v2.jsonl` で accepted / edited に
+  なった提案のみ。before が現在の本文と一字一致するときだけ機械適用し、ずれたら差し戻す（Q5 の安全側を採用）。
+  既定は dry-run で `--write` を付けたときだけ書き込み、`--commit` で vault 側に `lit:` コミットを作る（push はしない）。
+  書き込み前に Obsidian の起動を確認して交錯を防ぐ。同一ファイルに複数の提案が当たる場合は1件ずつ直前の状態に対して
+  計画を立て直し、最終形を1回だけ書く。適用済みは `data/applied.jsonl` で二重適用を防ぐ。
+  検証（スクラッチの疑似 vault で7項目）: 末尾追加・frontmatter 置換・起票の新規作成・人間の編集版の優先・
+  却下の不適用・before がずれた場合の差し戻し・再実行での非重複、すべて合格。
 - **提案本文の書き方（2026-08-03 バッチ2 の返却で確定）**: 親＝ノート自身の主張／タブ1つ下げた子＝文献の引用[[リンク]]や帰結。
   リンク先を読めば分かる定義・手順・列挙は再掲しない。同じ文献箇所を複数ノートで繰り返し引用しない。双方向リンクは目的にしない。
   原典が扱っていない主題に原典を接続しない。未決は断定せず「未定。候補は◯◯」と書く。複数行を生成する種目（draft/merge/spawn）で必須。
