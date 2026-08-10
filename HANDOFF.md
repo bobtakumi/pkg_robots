@@ -6,6 +6,7 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 
 ## Neo（Mac・GPU なし・オフライン可）
 
+- [ ] **R5 の候補を週次シートへ載せる**（オフライン可・下の R5 完了項の「次の一手」を独立タスク化 2026-08-10）: `garden permlink` の Zettel 間リンク候補はいま CLI で見るだけで週次に乗らない。`garden sheet` へ枠を足す（文献リンク・規則ベースと同じ 1 枚に。シート内の枠数は config で絞る）。確認: 疑似 vault で sheet に permlink 提案が載り、`collect` が採否を分類し、`lint --proposals` 不整合 0。
 - [x] ~~週次レポートの再設計実装~~・~~M5 未実装2点（stats・安定ID・回収）~~ → **2026-08-03 実装完了（R1+R2）**。
   `garden sheet / collect / lint / stats` を追加（判定シート生成・チェック回収・機械照合/健康診断・採用率集計）。
   設計正本は `~/pkg_vault/_Reports/2026-08-03 Robots拡張プラン（判定シート駆動の庭仕事）.md`（7/11 設計の M5 を包含）。
@@ -65,7 +66,8 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 
 - [ ] **稼働・疎通の事前チェック**（2026-07-11 時点で MBP は Tailscale 上オフライン＝まず復帰。レポート再設計の実装とは独立に進められる）:
   ① MBP をネットワーク復帰させ、Tailscale で bobmbp が active になること（スリープ／Tailscale 停止／省電力設定を疑う。週次自動実行はこれの常時成立が前提）。
-  ② vault 同期: Neo に 2026-07-11 の未 push コミットが12件以上ある（設計正本・整合性掃討）。MBP 復帰後、Neo で Obsidian を開けば obsidian-git が自動 push（手動なら Neo で `git -C ~/pkg_vault push`）→ MBP の vault 作業コピーで pull。
+  ② vault 同期: Neo に未 push コミットが溜まっている（**2026-08-10 時点で 80 件超・2026-06-26 以降**。当初の「12件以上」から慢性化）。MBP 復帰後、Neo で Obsidian を開けば obsidian-git が自動 push（手動なら Neo で `git -C ~/pkg_vault push`）→ MBP の vault 作業コピーで pull。
+  ※ この欄の実測値（notes 数・回帰基準等）は 2026-07-11 時点のもの。**着手時にまず洗い替えてから照合する**（R1〜R5 実装後の再計測はしていない）。
   ③ MBP で `~/pkg_robots` と `~/dev-hub` を `git pull`（本引き継ぎと実装メモを取得）。
   ④ DGX 到達: `curl -s --max-time 6 http://spark-062c.local:11434/v1/models` がモデルを返す。⑤ Ollama 常駐＋`bge-m3-8k` が存在。
   ⑥ vault 同期後に `python -m garden index` を再実行。期待値は notes 780 前後（従来 796 から 2026-07-11 の整合性掃討で PMPP スタブ16件が削除済み）・zettel 124・chunks 全埋め込み。
