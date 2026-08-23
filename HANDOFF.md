@@ -6,6 +6,7 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 
 ## Neo（Mac・GPU なし・オフライン可）
 
+- [ ] **次段 = PKG Hermes Robot（2026-08-23 ユーザー判定）**: Hermes Agent を判定・庭仕事の実行役に据える版。別 repo を作らず同じ repo の次の段として進める。**先に週次サイクルの初回本番を通す**（下の MBP 欄）。
 - [ ] **R5 の候補を週次シートへ載せる**（オフライン可・下の R5 完了項の「次の一手」を独立タスク化 2026-08-10）: `garden permlink` の Zettel 間リンク候補はいま CLI で見るだけで週次に乗らない。`garden sheet` へ枠を足す（文献リンク・規則ベースと同じ 1 枚に。シート内の枠数は config で絞る）。確認: 疑似 vault で sheet に permlink 提案が載り、`collect` が採否を分類し、`lint --proposals` 不整合 0。
 - [x] ~~週次レポートの再設計実装~~・~~M5 未実装2点（stats・安定ID・回収）~~ → **2026-08-03 実装完了（R1+R2）**。
   `garden sheet / collect / lint / stats` を追加（判定シート生成・チェック回収・機械照合/健康診断・採用率集計）。
