@@ -3,7 +3,7 @@
 @../dev-hub/CLAUDE.md
 
 このファイルは Claude Code が起動時に必ず読む。上の import で dev-hub の恒久ルール
-（日本語応答・git 同期層が正本・二重持ち禁止 等）を自動で取り込み、下の `@HANDOFF.md` で
+（日本語応答・git 同期層が大元・二重持ち禁止 等）を自動で取り込み、下の `@HANDOFF.md` で
 **現在の引き継ぎ（次の一手）** を repo から取り込む（ローカルのメモリ機構 `~/.claude/...` は
 別環境へ渡らないため、引き継ぎは repo 内ファイルに置く）。
 
@@ -19,7 +19,7 @@
 
 ## 引き継ぎの更新規律（セッションを終える側）
 
-- `HANDOFF.md` は**環境別欄の常設ボード＝次の一手の正本**。終わる前に各欄を実状態へ更新する
+- `HANDOFF.md` は**環境別欄の常設ボード＝次の一手の大元**。終わる前に各欄を実状態へ更新する
   （「何を・どう確認するか」まで書く。済んだ項目は消す）。
 - **不変条件: 持ち運び端末（Neo 等）の欄を絶やさない。**
 - 引き継ぎは**コミットして渡す**（push まで）。受け手は別環境で pull → 起動 → 自動読込で続きに入れる。
@@ -31,7 +31,7 @@
 - **Vault（`~/pkg_vault`）へは read + propose**。無条件に書けるのは `_Reports/garden-weekly-YYYYMMDD.md`（judgment sheet・`garden sheet`）と旧 `_Reports/suggest-YYYYMMDD.md`（`garden report`・移行済み）のみ。
   加えて **`2_Permanent/` へは `garden apply` 経由でのみ書ける**（2026-08-03 Q1 回答）。条件は「人間がシートで採用/編集と判定した提案であること」「before が現在の本文と一字一致すること」「Obsidian が起動していないこと」の3つで、いずれかを欠いたら書かずに差し戻す。それ以外の経路・パスは読むだけ。
 - 全体像・経緯・落とし穴は `docs/00-START-HERE.md`。環境構築（venv・Ollama・索引・回帰）は
-  `docs/HANDOFF-MBP.md`＝**一回性のセットアップ文書**（次の一手の正本はこの repo の `HANDOFF.md`）。
+  `docs/HANDOFF-MBP.md`＝**一回性のセットアップ文書**（次の一手の大元はこの repo の `HANDOFF.md`）。
 - **judge まわりの触ってはいけないもの**（根拠は `docs/HANDOFF-MBP.md` §4）:
   - `[report] min_confidence`（confidence≥5 ゲート）を安易に下げない — LLM-jp-4 の過剰リンク対策。提案洪水は過去の頓挫要因。
   - judge に `response_format: json_object` を送らない — DGX の llama.cpp は 400 になる。プロンプト強制＋パースリトライ実装（`judge_pair`）を触らない。

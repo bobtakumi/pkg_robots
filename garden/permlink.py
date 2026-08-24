@@ -13,6 +13,10 @@
 
 スコアは4つの重みつき和。閾値と重みは `[permlink]` で調整できる。判定は人間に返す前提で、
 このモジュールは vault へ書き込まない。
+
+候補は `build()` で週次シートの提案（type = `perm_link`）に変換され、文献リンク・規則ベースと
+同じ 1 枚に載る。シート内の枠数は `[permlink] sheet_quota`、1 回に作る新規提案の上限は
+`max_new` で絞る（少数・非一括の原則）。
 """
 
 import json
@@ -22,6 +26,7 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter, defaultdict
+from datetime import date
 from pathlib import Path
 
 from . import lint
@@ -38,7 +43,8 @@ DROP_RE = re.compile(r"[\s、。「」『』（）()\[\]|#*\-—:：/\\!?！？,
 # 大掃除**前**の庭は文献リンク9本・Zettel 間リンクも疎で、共引用や二歩先がほとんど効かない。
 # 疎なグラフでは語彙が主役になるため w_term を最大に置き、構造の手がかりは加点として使う。
 DEFAULTS = {"top_k": 10, "min_score": 0.06, "term_floor": 0.02,
-            "w_cocite": 0.25, "w_cotag": 0.10, "w_hop": 0.20, "w_term": 0.45}
+            "w_cocite": 0.25, "w_cotag": 0.10, "w_hop": 0.20, "w_term": 0.45,
+            "sheet_quota": 1, "max_new": 3}
 
 
 def opts(cfg: dict) -> dict:
@@ -235,6 +241,72 @@ def evaluate(g: dict, o: dict, gold_path: Path) -> None:
         print(f"  （スナップショットに無い正解 {absent} 件は対象外）")
 
 
+STATUS_PRIORITY = {"Inbox": 0, "Seeding": 0}  # 7/11 設計: Inbox / Seeding を優先
+
+
+def _load_jsonl(path: Path) -> list[dict]:
+    if not path.exists():
+        return []
+    return [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def _side_key(note: dict, today: date) -> tuple[int, int]:
+    """提案を載せる側を選ぶ順序。Inbox / Seeding が先、次に放置が長い方。"""
+    mod = note.get("modified") or date.fromtimestamp(note["mtime"])
+    return (STATUS_PRIORITY.get(note.get("status", ""), 1), -(today - mod).days)
+
+
+def build(cfg: dict, notes: list[dict], decided: set[tuple[str, str]]) -> list[dict]:
+    """候補ペアを週次シートの提案へ変換する（proposals.jsonl へは書かない）。
+
+    リンクは無向なので、どちらのノートに 1 行足しても庭のつながりは同じ。手を入れる側は
+    週次の優先順（Inbox / Seeding 優先・放置が長い順）に合わせて選ぶ。`decided` は採否が
+    付いた組で、向きが逆でも同じ組とみなして外す。
+    """
+    root: Path = cfg["_root"]
+    o = opts(cfg)
+    existing = _load_jsonl(root / "data" / "proposals.jsonl")
+    seen = {tuple(sorted((p["target"], p["source_refs"][0])))
+            for p in existing
+            if p.get("type") == "perm_link" and p.get("source_refs")}
+    seen |= {tuple(sorted(pair)) for pair in decided}
+
+    g = build_graph(notes)
+    today = date.today()
+    batch = today.strftime("%Y%m%d")
+    seq = 0
+    for p in existing:
+        m = re.match(rf"p-{batch}-(\d+)$", p["id"])
+        if m:
+            seq = max(seq, int(m.group(1)))
+
+    fresh: list[dict] = []
+    for r in score_pairs(g, o):
+        if len(fresh) >= o["max_new"]:
+            break
+        key = tuple(sorted((r["a"], r["b"])))
+        if key in seen:
+            continue
+        src, dst = sorted((g["by_path"][r["a"]], g["by_path"][r["b"]]),
+                          key=lambda n: _side_key(n, today))
+        seen.add(key)
+        seq += 1
+        fresh.append({
+            "id": f"p-{batch}-{seq:03d}",
+            "type": "perm_link",
+            "target": src["path"],
+            "before": None,
+            "after": f"- [[{dst['title']}]]（関連）",
+            "rationale": reason(g, r),
+            "source_refs": [dst["path"]],
+            "batch": batch,
+            "proposer": "permlink",
+            "score": r["score"],
+            "meta": {k: r[k] for k in ("cocite", "cotag", "hop", "comoc", "term")},
+        })
+    return fresh
+
+
 def run(cfg: dict, ref: str | None, do_eval: bool, as_json: bool) -> None:
     o = opts(cfg)
     notes = load(cfg, ref)
@@ -262,4 +334,4 @@ def run(cfg: dict, ref: str | None, do_eval: bool, as_json: bool) -> None:
         print(f"          {reason(g, r)}")
     if len(pairs) > 20:
         print(f"\n  …ほか {len(pairs) - 20} 組（全件は --json）")
-    print("\n（この一覧は確認用。シートへ載せる実装は次段。判断は必ず人間に返す）")
+    print("\n（この一覧は確認用。実際にシートへ載せるのは garden sheet。判断は必ず人間に返す）")

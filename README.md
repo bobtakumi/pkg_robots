@@ -17,7 +17,7 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
 .venv/bin/python -m garden judge --regress eval/calibration_export.json  # 較正セットで回帰（M6）
 .venv/bin/python -m garden report             # 確信度≥5 でふるい、上位5件を提案レポート化（M4・旧体裁）
 .venv/bin/python -m garden rules              # 規則ベースの提案を確認（R4・書き込みなし）
-.venv/bin/python -m garden sheet              # 週次の判定シートを生成（文献リンク + 規則ベース）
+.venv/bin/python -m garden sheet              # 週次の判定シートを生成（文献リンク + 規則ベース + Zettel 間リンク）
 .venv/bin/python -m garden collect <sheet>    # チェックを回収して decisions に記録
 .venv/bin/python -m garden lint --proposals   # 機械照合と健康診断（+ 提案の適用前提チェック）
 .venv/bin/python -m garden apply              # 承認済み提案の適用計画を表示（既定 dry-run）
@@ -33,12 +33,19 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
 - **R1+R2 実装完了（2026-08-03）**: 判定シート駆動の庭仕事の基盤 — `garden sheet`（判定シート生成・安定ID・放置順/Inbox,Seeding優先）・
   `garden collect`（チェック回収・編集検出・decisions/decisions_v2 両書き）・`garden lint`（機械照合と健康診断。リンク切れは
   「起票待ちキュー」として扱う）・`garden stats`（採用率集計）。M5 週次レポート再設計はこの sheet 形式に置換して完了。
-  設計正本は vault 側 `_Reports/2026-08-03 Robots拡張プラン（判定シート駆動の庭仕事）.md`。R3 apply 以降は Q1〜Q5 の回答待ち。
+  設計の大元は vault 側 `_Reports/2026-08-03 Robots拡張プラン（判定シート駆動の庭仕事）.md`。R3 apply 以降は Q1〜Q5 の回答待ち。
 - **R4 実装完了（2026-08-03）**: 規則ベースの提案生成 `garden rules` を追加し、`garden sheet` が2系統（connector 由来の
   文献リンク + rules 由来の成熟度・タグ・起票待ちキュー）を1枚に載せるようにした。findings が無い環境でも規則ベースだけで
   シートが生える（判定 LLM に届かない Mac でも週次が回る）。同じ指摘を毎週出さないよう `rule_key` で重複を抑止し、
   シート内の枠は `[rules] sheet_quota` で確保する。実測: 昇格候補20件・降格1件を提案化、シート5件生成→ collect が
   採用/却下を正しく分類（lint --proposals 不整合0）。
+- **R5 をシートへ結線（2026-08-24）**: `garden permlink` の Zettel 間リンク候補が週次シートに載るようになった
+  （提案の種目 `perm_link`。文献リンク・規則ベースと同じ 1 枚）。リンクは無向なので、1 行足す側は週次の優先順
+  （Inbox / Seeding 優先・放置が長い順）で選び、逆向きのほうが自然なら却下してよいと提案文に書いてある。枠は
+  `[permlink] sheet_quota`（既定 1）、1 回に作る新規提案は `max_new`（既定 3）で絞る。採否済み・向きが逆の採否・
+  人手で貼られたリンクは再提案しない。疑似 vault で 7 項目（生成・掲載・collect の分類・`lint --proposals` 不整合 0・
+  再掲なし・人手適用後の再提案なし・`apply` が本文末尾へ追加）を確認。
+
 - **R3 実装完了（2026-08-03）**: `garden apply`。Q1 の回答（robots に `2_Permanent/` への書き込みを許す。
   **ただし人間が確認した提案だけ**）を受けて実装した。適用対象は `decisions_v2.jsonl` で accepted / edited に
   なった提案のみ。before が現在の本文と一字一致するときだけ機械適用し、ずれたら差し戻す（Q5 の安全側を採用）。
@@ -55,10 +62,10 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
 
 - **Phase 1（M0–M4）実装完了・M6 判定側の DGX 本配線と回帰確認まで済み**。
 - **PKG運用改善設計 確定（2026-07-11）**: M5 は「週次庭仕事フロー」として実装する — Zettel 起点の優先度選定（放置期間・Inbox/Seeding 優先）・一枚のレビューノート体裁（根拠引用＋貼るだけ wikilink＋採/否チェックボックス）・チェックボックス回収→`data/decisions.jsonl`・launchd 週次自動実行（MBP）。
-  設計正本は vault 側 `_Reports/2026-07-11 PKG運用改善設計（週次庭仕事フロー）.md`。あわせて vault の `zettel_linked` は全廃（O8 撤回・受け皿は decisions.jsonl）。
+  設計の大元は vault 側 `_Reports/2026-07-11 PKG運用改善設計（週次庭仕事フロー）.md`。あわせて vault の `zettel_linked` は全廃（O8 撤回・受け皿は decisions.jsonl）。
 - **O11 決着（2026-07-07）: MBP への移設完了**。MBP 上で venv・Ollama(bge-m3-8k)・`garden index`（notes 796・chunks 2589）を構築し、
   `judge --regress` が Neo 実測基準と一致（gold一致 17/20・非gold link 11/15・JSON妥当 30/35）。残りは週次運用（M5）。
-- 次の一手の正本は `HANDOFF.md`（環境別欄の常設ボード・2026-07-07 導入。dev-hub 管理下）。
+- 次の一手の大元は `HANDOFF.md`（環境別欄の常設ボード・2026-07-07 導入。dev-hub 管理下）。
 - **O2 決着**: `bge-m3-8k` 採用（recall@10=51.1% / @30=63.8%）。ruri-large は 512tok 制約で 25.5% に劣後。
 - **O10 決着**: DGX は llama.cpp llama-server、モデル `llm-jp-4-32b-a3b-thinking-Q4_K_M.gguf`。
   thinking の推論は `reasoning_content` に分離され `content` は素の JSON。`json_object` 強制は 400 で不可→プロンプト強制＋リトライ。

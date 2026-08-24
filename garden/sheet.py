@@ -9,9 +9,9 @@ Obsidian で開いてチェック・微修正して返す「一枚のレビュ�
   埋める。この2つの目印だけを collect が読む（本文は人間が自由に書き換えてよい）
 - 既定の出力先は Vault の `_Reports/`。検証時は必ず `--out` で repo 内に逃がすこと
 
-載せる種目は2系統。connector 由来の文献リンク（findings 経由）と、rules 由来の規則ベース
-提案（R4: 成熟度・タグ・起票待ちキュー）。findings が無い環境（判定 LLM に届かない Mac 等）
-でも rules だけでシートは生える。
+載せる種目は3系統。connector 由来の文献リンク（findings 経由）、rules 由来の規則ベース
+提案（R4: 成熟度・タグ・起票待ちキュー）、permlink 由来の Zettel 間リンク（R5: 構造と語彙だけ）。
+findings が無い環境（判定 LLM に届かない Mac 等）でも rules と permlink だけでシートは生える。
 
 提案本文の書き方（2026-08-03 バッチ2 の返却で確定・複数行を書く種目で守る）:
 - 親の箇条書き = ノート自身の主張、タブ1つ下げた子 = 文献の引用[[リンク]]や帰結
@@ -27,7 +27,7 @@ import sqlite3
 from datetime import date
 from pathlib import Path
 
-from . import lint, rules
+from . import lint, permlink, rules
 
 STATUS_PRIORITY = {"Inbox": 0, "Seeding": 0}  # 7/11 設計: Inbox / Seeding を優先
 
@@ -117,6 +117,31 @@ RULE_NOTE_ENTRY = """
 **根拠**
 
 - {rationale}
+
+<!-- id: {pid} -->
+- [ ] 採用
+- [ ] 却下
+"""
+
+PERM_ENTRY = """
+## 提案{n}: [[{ztitle}]] ← [[{link}]]
+
+- 対象: `{target}`（status: {status}・最終編集 {modified}・{days}日放置）
+- 種目: Zettel 間リンク（構造と語彙だけで出した候補・スコア {score}）
+
+**いまの本文**
+
+{body_block}
+
+**提案**（この1行を足す。文言はこのブロックを直接書き換えてよい）
+
+<!-- after: {pid} -->
+{after_block}
+
+**根拠**
+
+- {rationale}
+- つながりは無向なので、[[{link}]] の側に書くほうが自然なら、この提案は却下してそちらへ足してよい。
 
 <!-- id: {pid} -->
 - [ ] 採用
@@ -273,8 +298,8 @@ def _relation(after: str) -> str:
     return m.group(1) if m else "関連"
 
 
-KIND_LABEL = {"lit_link": "文献リンク", "status": "成熟度", "tag": "タグ",
-              "queue": "起票待ちキュー", "moc": "MOC収録"}
+KIND_LABEL = {"lit_link": "文献リンク", "perm_link": "Zettel 間リンク", "status": "成熟度",
+              "tag": "タグ", "queue": "起票待ちキュー", "moc": "MOC収録"}
 
 
 def _render_lit_link(i: int, p: dict, by_path: dict, today: date) -> str:
@@ -289,6 +314,17 @@ def _render_lit_link(i: int, p: dict, by_path: dict, today: date) -> str:
         body_block=fence(n["body"].strip()), after_block=fence(p["after"]), pid=p["id"],
         rationale=p["rationale"], ev_z=p.get("evidence_zettel", ""),
         ev_l=p.get("evidence_lit", ""))
+
+
+def _render_perm_link(i: int, p: dict, by_path: dict, today: date) -> str:
+    n = by_path[p["target"]]
+    dst = by_path[p["source_refs"][0]]
+    mod = n["modified"] or date.fromtimestamp(n["mtime"])
+    return PERM_ENTRY.format(
+        n=i, ztitle=n["title"], link=dst["title"], target=p["target"],
+        status=n["status"] or "（欠落）", modified=mod.isoformat(), days=(today - mod).days,
+        score=p.get("score", "?"), body_block=fence(n["body"].strip()),
+        after_block=fence(p["after"]), pid=p["id"], rationale=p["rationale"])
 
 
 def _render_rule(i: int, p: dict, by_path: dict) -> str:
@@ -341,6 +377,8 @@ def render(cfg: dict, picked: list[dict], notes: list[dict], sheet_name: str, to
     for i, p in enumerate(picked, 1):
         if p["type"] == "lit_link":
             parts.append(_render_lit_link(i, p, by_path, today))
+        elif p["type"] == "perm_link":
+            parts.append(_render_perm_link(i, p, by_path, today))
         else:
             parts.append(_render_rule(i, p, by_path))
     parts.append("\n---\n\n判定を書き終えたら回収コマンドを実行する。"
@@ -348,7 +386,13 @@ def render(cfg: dict, picked: list[dict], notes: list[dict], sheet_name: str, to
     return "".join(parts)
 
 
-def _alive(p: dict, by_path: dict, decided: set, done: set) -> bool:
+def _linked(a: str, b: str, by_path: dict, idx: dict[str, list[str]]) -> bool:
+    """a → b のリンクが既に本文にあるか（人手で貼られていたら提案は用済み）。"""
+    body = by_path[a]["body"]
+    return any(lint.resolve(name, idx) == b for name in lint.wikilinks(body))
+
+
+def _alive(p: dict, by_path: dict, decided: set, done: set, idx: dict[str, list[str]]) -> bool:
     """まだシートに載せる資格がある提案か（採否済み・対象消滅を落とす）。"""
     if p["id"] in done:
         return False
@@ -356,11 +400,17 @@ def _alive(p: dict, by_path: dict, decided: set, done: set) -> bool:
         return p["target"] not in by_path  # 既に起票されたら用済み
     if p["target"] not in by_path:
         return False
-    if p["type"] == "lit_link":
+    if p["type"] in ("lit_link", "perm_link"):
         refs = p.get("source_refs") or []
         if not refs or refs[0] not in by_path:
             return False
-        return (p["target"], refs[0]) not in decided
+        if p["type"] == "lit_link":
+            return (p["target"], refs[0]) not in decided
+        # Zettel 間は無向。向きが逆の採否も、人手で貼られたリンクも同じ組として外す
+        if (p["target"], refs[0]) in decided or (refs[0], p["target"]) in decided:
+            return False
+        return not (_linked(p["target"], refs[0], by_path, idx)
+                    or _linked(refs[0], p["target"], by_path, idx))
     return True
 
 
@@ -383,6 +433,7 @@ def run(cfg: dict, findings_path: Path | None, out: Path | None) -> None:
     res = lint.analyze(cfg, notes)
     existing, fresh = build_proposals(cfg, links, notes)
     fresh += rules.build(cfg, notes, res)
+    fresh += permlink.build(cfg, notes, decided_pairs(root))
     if fresh:
         with (root / "data" / "proposals.jsonl").open("a", encoding="utf-8") as fp:
             for p in fresh:
@@ -390,8 +441,9 @@ def run(cfg: dict, findings_path: Path | None, out: Path | None) -> None:
 
     # 保留（未採否）の既存提案を先に、今回の新規を後に。target が Vault から消えたものは落とす
     by_path = {n["path"]: n for n in notes}
+    idx = lint.title_index(notes)
     done, decided = decided_ids(root), decided_pairs(root)
-    pending = [p for p in existing + fresh if _alive(p, by_path, decided, done)]
+    pending = [p for p in existing + fresh if _alive(p, by_path, decided, done, idx)]
     # 規則ベースの提案は作った週の実測値を抱えている。返ってくる週には vault が動いているので
     # 現在の数字へ採り直し、条件が消えたものはシートから外す（凍結した数字で判断させない）
     pending, obsolete = rules.refresh(pending, rules.current(cfg, notes, res))
@@ -403,9 +455,12 @@ def run(cfg: dict, findings_path: Path | None, out: Path | None) -> None:
     cap = cfg.get("sheet", {}).get("max_proposals", 5)
     # 種目の偏りを防ぐ: 規則ベースに枠を確保してから残りを埋める（どちらも足りなければ融通する）
     quota = min(cfg.get("rules", {}).get("sheet_quota", 2), cap)
-    rule_side = [p for p in pending if p["type"] != "lit_link"]
+    perm_quota = min(cfg.get("permlink", {}).get("sheet_quota", 1), max(0, cap - quota))
+    rule_side = [p for p in pending if p["type"] not in ("lit_link", "perm_link")]
+    perm_side = [p for p in pending if p["type"] == "perm_link"]
     link_side = [p for p in pending if p["type"] == "lit_link"]
-    picked = rule_side[:quota] + link_side[:cap - quota]
+    picked = (rule_side[:quota] + perm_side[:perm_quota]
+              + link_side[:max(0, cap - quota - perm_quota)])
     if len(picked) < cap:
         rest = [p for p in pending if p not in picked]
         picked += rest[:cap - len(picked)]

@@ -1,16 +1,15 @@
 # HANDOFF — pkg_robots（環境別欄の常設ボード）
 
-_`CLAUDE.md` から自動読込される**次の一手の正本**（dev-hub 側 `projects/pkg-robots.md` は状態をコピーしない）。
+_`CLAUDE.md` から自動読込される**次の一手の大元**（dev-hub 側 `projects/pkg-robots.md` は状態をコピーしない）。
 セッションを終える側は各欄を実状態へ更新し、**持ち運び端末（Neo 等オフライン可の環境）の欄を絶やさず**
 commit & push する（不変条件）。環境構築の手順そのもの（venv・Ollama・索引・回帰）は `docs/HANDOFF-MBP.md` を参照。_
 
 ## Neo（Mac・GPU なし・オフライン可）
 
 - [ ] **次段 = PKG Hermes Robot（2026-08-23 ユーザー判定）**: Hermes Agent を判定・庭仕事の実行役に据える版。別 repo を作らず同じ repo の次の段として進める。**先に週次サイクルの初回本番を通す**（下の MBP 欄）。
-- [ ] **R5 の候補を週次シートへ載せる**（オフライン可・下の R5 完了項の「次の一手」を独立タスク化 2026-08-10）: `garden permlink` の Zettel 間リンク候補はいま CLI で見るだけで週次に乗らない。`garden sheet` へ枠を足す（文献リンク・規則ベースと同じ 1 枚に。シート内の枠数は config で絞る）。確認: 疑似 vault で sheet に permlink 提案が載り、`collect` が採否を分類し、`lint --proposals` 不整合 0。
 - [x] ~~週次レポートの再設計実装~~・~~M5 未実装2点（stats・安定ID・回収）~~ → **2026-08-03 実装完了（R1+R2）**。
   `garden sheet / collect / lint / stats` を追加（判定シート生成・チェック回収・機械照合/健康診断・採用率集計）。
-  設計正本は `~/pkg_vault/_Reports/2026-08-03 Robots拡張プラン（判定シート駆動の庭仕事）.md`（7/11 設計の M5 を包含）。
+  設計の大元は `~/pkg_vault/_Reports/2026-08-03 Robots拡張プラン（判定シート駆動の庭仕事）.md`（7/11 設計の M5 を包含）。
   検証済み: 較正 findings からのシート生成・collect の5分類（採用/却下/編集/保留/二重チェック警告）・
   decisions.jsonl 読み側互換・lint の実 vault 走査（起票待ちキュー0・タグ違反0・昇格候補22・完全孤立3）。
   Fable レビュー合格（修正必須なし・推奨4件は反映済み）。
@@ -97,9 +96,9 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 - [ ] **レビューバンドル判定待ち**: `docs/review-bundles/2026-07-07_mbp-onboarding/views/review.md`（RP 5 個・想定 5 分）。
   MBP 移設＋オンボーディングの構成判断の事後承認。✏️/❌ が出たら core を直して view 再派生。
 - [ ] **（週次フロー2〜3週運用後）判定モデル実験**: 凍結較正セット35ペアで LLM-jp-4 / DS4（DeepSeek ローカル）/ Claude gold の三つ巴比較。結果を見て confidence≥5 ゲートの緩和可否を再検討（過剰提案は許容の回答あり 2026-07-11。ただし提案洪水は過去の頓挫要因のためフロー定着を先行）。
-  ※ 採否記録の運用方法は決着済み（2026-07-11）: レビューノートのチェックボックス状態を robots が回収して `decisions.jsonl` へ記録。設計正本は `~/pkg_vault/_Reports/2026-07-11 PKG運用改善設計（週次庭仕事フロー）.md`。
+  ※ 採否記録の運用方法は決着済み（2026-07-11）: レビューノートのチェックボックス状態を robots が回収して `decisions.jsonl` へ記録。設計の大元は `~/pkg_vault/_Reports/2026-07-11 PKG運用改善設計（週次庭仕事フロー）.md`。
 
 ## 参照
 
 - 全体感・追記ログ: dev-hub `projects/pkg-robots.md`
-- 状態の正本: `README.md`（フェーズ・決着事項）＋このファイル（次の一手）。環境構築の手順は `docs/HANDOFF-MBP.md`（一回性文書）。
+- 状態の大元: `README.md`（フェーズ・決着事項）＋このファイル（次の一手）。環境構築の手順は `docs/HANDOFF-MBP.md`（一回性文書）。
