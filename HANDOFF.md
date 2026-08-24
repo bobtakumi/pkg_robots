@@ -64,6 +64,19 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 
 ## MBP（M3 Max・埋め込みホスト・robot 本体）
 
+- [ ] **週次サイクルの初回本番 — シートは生成済み。あとは記入と回収**（2026-08-24）:
+  - 記入するもの = `~/pkg_vault/_Reports/garden-weekly-20260824.md`（提案 5 件 = 成熟度 4・Zettel 間リンク 1。各件の末尾で採用か却下にチェックを 1 つ）
+  - 回収 = `.venv/bin/python -m garden collect ~/pkg_vault/_Reports/garden-weekly-20260824.md`（`--dry-run` で内訳だけ見られる）
+  - 反映 = `.venv/bin/python -m garden apply --write --commit`（Obsidian を閉じてから）
+  - ⚠ **文献リンクの提案が 1 件も載っていない**。判定役（Spark）へ繋げず判定を回せていないため（下記）。規則ベースと Zettel 間リンクだけのシートになっている
+- [ ] **判定役へ繋がるようにする（ローカルネットワークの許可）**: `garden judge` が Spark へ繋がらない。
+  相手は生きていて `curl`・`nc` では通るのに、**Python からだけ「No route to host」で落ちる**。
+  2026-08-24 の切り分け: 同じ宛先へ `/usr/bin/python3` は繋がり、`.venv`（uv が入れた Python）は繋がらない。
+  同じ Python でも `localhost` は繋がる。＝ macOS のローカルネットワークの許可がこの Python に無い。
+  対処: システム設定 → プライバシーとセキュリティ → ローカルネットワーク で、実行しているターミナルを許可する。
+  許可が通ったら `candidates`（済・3,677 ペア）→ `judge --limit 40` → `sheet` の順で回すと文献リンクが載る。
+
+
 - [ ] **稼働・疎通の事前チェック**（2026-07-11 時点で MBP は Tailscale 上オフライン＝まず復帰。レポート再設計の実装とは独立に進められる）:
   ① MBP をネットワーク復帰させ、Tailscale で bobmbp が active になること（スリープ／Tailscale 停止／省電力設定を疑う。週次自動実行はこれの常時成立が前提）。
   ② vault 同期: Neo に未 push コミットが溜まっている（**2026-08-10 時点で 80 件超・2026-06-26 以降**。当初の「12件以上」から慢性化）。MBP 復帰後、Neo で Obsidian を開けば obsidian-git が自動 push（手動なら Neo で `git -C ~/pkg_vault push`）→ MBP の vault 作業コピーで pull。

@@ -8,10 +8,12 @@
 幻覚ガード: evidence_* は渡したテキストの部分文字列でなければ無効（自動 skip 扱い）。
 """
 
+import errno
 import json
 import re
 import sqlite3
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -94,8 +96,23 @@ def call_llm(cfg: dict, system: str, user: str) -> str:
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json"},
     )
-    with urllib.request.urlopen(req, timeout=600) as r:
-        return json.loads(r.read())["choices"][0]["message"]["content"]
+    try:
+        with urllib.request.urlopen(req, timeout=600) as r:
+            return json.loads(r.read())["choices"][0]["message"]["content"]
+    except urllib.error.URLError as e:
+        # macOS はアプリごとにローカルネットワークへの接続を許可制にしている。許可の無い
+        # プロセスから LAN のホストへ繋ぐと「No route to host」で落ちる（相手は生きていて
+        # curl では通るので原因が分かりにくい。2026-08-24 実測: 同じ判定役に対して
+        # /usr/bin/python3 は繋がり、uv が入れた Python は繋がらない）。
+        if isinstance(e.reason, OSError) and e.reason.errno == errno.EHOSTUNREACH:
+            sys.exit(
+                f"判定役へ繋がらない: {cfg['judge']['endpoint']}\n"
+                "  相手が落ちているか、この Python にローカルネットワークの許可が無い。\n"
+                "  切り分け: curl や nc で同じ宛先に繋がるのに Python だけ落ちるなら後者。\n"
+                "  システム設定 → プライバシーとセキュリティ → ローカルネットワーク で、\n"
+                "  実行しているターミナル（または Python）を許可する。"
+            )
+        raise
 
 
 def judge_pair(cfg: dict, system: str, user: str, zettel_body: str,
