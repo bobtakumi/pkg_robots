@@ -62,7 +62,7 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
   (c) API 直叩き。推奨は当面 (a)）。R6 に着手する前に決めればよい。
   → 判断点は vault 側 `_Reports/review-bundles/2026-08-03_residual-items/views/review.md` の「判断6」に集約した。
   較正資産: 大掃除の統合是非25件を `eval/cleanup_gold_20260802.json` に gold 化済み（R6 アトミック性判定の再現テスト用）。
-- [ ] **レビューバンドル判定待ち**: `docs/review-bundles/2026-07-07_mbp-onboarding/views/review.md`（RP 5 個・想定 5 分）。
+- [ ] **レビューバンドル判定待ち**: `review-bundles/2026-07-07_mbp-onboarding/views/review.md`（RP 5 個・想定 5 分）。
   MBP 移設＋オンボーディングの構成判断の事後承認。✏️/❌ が出たら core を直して view 再派生。
 - [ ] **（週次フロー2〜3週運用後）判定モデル実験**: 凍結較正セット35ペアで LLM-jp-4 / DS4（DeepSeek ローカル）/ Claude gold の三つ巴比較。結果を見て confidence≥5 ゲートの緩和可否を再検討（過剰提案は許容の回答あり 2026-07-11。ただし提案洪水は過去の頓挫要因のためフロー定着を先行）。
   ※ 採否記録の運用方法は決着済み（2026-07-11）: レビューノートのチェックボックス状態を robots が回収して `decisions.jsonl` へ記録。設計の大元は `~/pkg_vault/_Reports/2026-07-11 PKG運用改善設計（週次庭仕事フロー）.md`。

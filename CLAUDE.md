@@ -39,3 +39,10 @@
   - evidence 逐語検証（幻覚ガード）を緩めない — 妥当率を上げたいからと検証を弱めるのは over-fit。
 - `data/`（garden.db 等）は git 管理外のビルド成果物。各マシンで `.venv/bin/python -m garden index` で再生成する。
 - 較正セット（`eval/calibration_export.json`＋`calibration_labels.jsonl`）は凍結。モデル差し替え時の回帰テスト専用。
+
+## 判定文書（レビューバンドル）
+
+方式の大元は dev-hub `methodology/review-bundle/`（`SKILL.md` を手順書として読む。複製は置かない — 2026-09-02 に複製配布を廃止）。この節が持つのは、この repo 固有の作法だけ。**書けるのは hub の規約への追加**で、規約そのものを覆す形は書かない。
+
+- 置き場: `review-bundles/<date>_<topic>/`（2026-09-02 に `docs/` 配下から移した）。**vault 側の提案・庭仕事に関する判定は vault の `_Reports/review-bundles/` に置く**（vault 側の規律が大元）
+- 判定が済んだら、要点を `HANDOFF.md` と `README.md` へ書いてから束を削除する
