@@ -28,7 +28,7 @@ passage_prefix = ""
 [judge]
 # DGX Spark 上の llama.cpp llama-server（OpenAI 互換 /v1、認証なし）。2026-07-04 実測確定。
 # thinking モデルだが llama.cpp は推論を reasoning_content に分離し content は素の JSON を返す。
-endpoint = "http://spark-062c.local:11434/v1"
+endpoint = "http://100.117.133.28:11434/v1"
 model = "llm-jp-4-32b-a3b-thinking-Q4_K_M.gguf"
 
 [report]
