@@ -2,9 +2,9 @@
 
 > **この文書の役割**: MBP でこのリポジトリに初めて触れる「あなた」（人間 or Claude Code）に、
 > pkg_robots が**何のためのもので、これまで何を議論し、なぜ今こうなっているか**を最初から案内する。
-> セットアップの具体手順は `HANDOFF-MBP.md` に、コードの使い方は `../README.md` にある。ここは**地図と経緯**。
+> コードの使い方は `../README.md` にある。ここは**地図と経緯**。
 >
-> **読む順番**: この文書（全体像）→ `HANDOFF-MBP.md` §3（手を動かす）→ 迷ったら末尾§9の用語集と正典ドキュメント。
+> **読む順番**: この文書（全体像）→ `../HANDOFF.md`（次の一手）→ 迷ったら末尾§9の用語集と大元のドキュメント。
 
 ---
 
@@ -124,7 +124,7 @@ garden index      →  garden candidates  →  garden judge      →  garden rep
 ## 8. あなたが今やること / この先の道のり
 
 **いま（O11: MBPへの移設と初回運用）:**
-1. `HANDOFF-MBP.md` §3 を上から実行 — venv 作成 → Ollama + bge-m3-8k → `garden index` → `garden judge --regress` で回帰確認。
+1. 環境を作る — venv 作成 → Ollama + bge-m3-8k → `garden index` → `garden judge --regress` で回帰確認。手順の最後の版は `git log --diff-filter=D -- docs/HANDOFF-MBP.md` で引ける。
 2. 回帰の数値が Neo での基準（JSON valid 29/35・gold 17/20・非gold link 11/15）と大きくズレないことを確認。
 3. パイプライン一気通し（candidates → judge → report）で `_Reports/suggest-YYYYMMDD.md` を生成し、
    vault を commit/push して週末レビューで読む。
@@ -155,7 +155,7 @@ garden index      →  garden candidates  →  garden judge      →  garden rep
   — 全体方針・出自タグ（【U】【C】【✓】）・変更履歴。**最も上位の設計判断はここ**。
 - `~/pkg_vault/_Reports/2026-07-02 Robots実装プラン Phase1（インデクサ+Connector）.md`
   — M0〜M6 の詳細・受け入れ基準・実測結果・リスク。
-- このリポジトリ内: `HANDOFF-MBP.md`（セットアップ手順）、`M6-回帰結果-LLMjp4.md`（LLM-jp-4 の癖）、
+- このリポジトリ内: `M6-回帰結果-LLMjp4.md`（LLM-jp-4 の癖）、
   `DGX-LLMjp4-接続情報の収集指示書.md`（DGX 接続情報の集め方）、`../README.md`（コマンド早見）。
 
 > **最後に**: このプロジェクトは「完璧な自動化」ではなく「あなたの庭仕事を助ける小さなロボット」を目指しています。

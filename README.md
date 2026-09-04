@@ -4,7 +4,7 @@ PKG（`~/pkg_vault`）に対する Connector robot とその土台。**Vault へ
 （書き込みは `_Reports/suggest-YYYYMMDD.md` のみ）。
 
 > **初めての人・MBP で再開する人は、まず [`docs/00-START-HERE.md`](docs/00-START-HERE.md) を読む。**
-> プロジェクトの全体像・経緯・落とし穴を案内している。セットアップ手順は [`docs/HANDOFF-MBP.md`](docs/HANDOFF-MBP.md)。
+> プロジェクトの全体像・経緯・落とし穴を案内している。環境の再構築手順は git 履歴（`git log --diff-filter=D -- docs/HANDOFF-MBP.md`）。
 > 設計判断の正典は Vault 側のプロジェクトノート v4 と実装プラン（START-HERE §9 にパス）。
 
 ## 使い方

@@ -21,6 +21,8 @@
 ## open_points（判断が必要な点）
 
 ### RP1: docs/HANDOFF-MBP.md の扱い — 常設 HANDOFF.md と併存でよいか
+
+> **2026-09-05 追記: この問いは決着済み。** 2026-09-02 の dev-hub の運用一式レビューで「一回性のセットアップ記録は git が持つ」と判定され（全件承認）、2026-09-05 に `docs/HANDOFF-MBP.md` を削除した。生きていた §4 の注意点は `CLAUDE.md` に、§3.6 の一気通しは `HANDOFF.md` に既に入っている。この判定は記入不要。
 - 問い: 一回性のセットアップ文書 `docs/HANDOFF-MBP.md` を存置し、新設の常設ボード `HANDOFF.md` から参照する構成でよいか。
 - 背景: hub HANDOFF の元タスクは「発展統合するか**検討して**導入」だった。§3（環境構築手順）と §4（注意点）は再セットアップ時に再利用価値があるため、吸収・削除ではなく併存を選んだ。役割分担（HANDOFF-MBP=一回性手順／HANDOFF.md=次の一手の正本）は repo `CLAUDE.md` に明記済み。
 - 推奨: 併存（現状）。
@@ -45,7 +47,9 @@
 - 却下時: 保留へ戻し、自己ホスト bare repo（`~/git/pkg-robots.git`）を第2 remote として再併設（旧方式のインフラは bobmbp に実在）。
 
 ### RP5: review-bundle skill の pkg_robots への配布
-- 問い: 配布 skill として review-bundle を `.claude/skills/review-bundle/` へ複製し、正本側 README に配布先を記録したが妥当か。
+
+> **2026-09-05 追記: この問いは決着済み。** 2026-09-02 の dev-hub の運用一式レビューで判定文書スキルの複製配布そのものが廃止になり（全件承認）、同日 `6366821` で `.claude/skills/review-bundle/` を削除した。全 repo が hub の手順書を読む方式に一本化されている。この判定は記入不要。
+- 問い: 配布 skill として review-bundle を `.claude/skills/review-bundle/` へ複製し、大元の README に配布先を記録したが妥当か。
 - 背景: onboarding 手順 5 は「どれを配るか迷ったらユーザーに確認」。本セッション中の指示「レビュードキュメントも作成」を配布の意思表示と解釈して実施した。
 - 推奨: 承認（本バンドル自体が初回実適用）。
 - 却下時: `.claude/skills/review-bundle/` を削除し、正本 README の配布先記録から pkg_robots を除去（レビューは hub の SKILL.md を手順書として読む方式に戻る）。

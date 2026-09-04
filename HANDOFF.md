@@ -2,7 +2,7 @@
 
 _`CLAUDE.md` から自動読込される**次の一手の大元**（dev-hub 側 `projects/pkg-robots.md` は状態をコピーしない）。
 セッションを終える側は各欄を実状態へ更新し、**持ち運び端末（Neo 等オフライン可の環境）の欄を絶やさず**
-commit & push する（不変条件）。環境構築の手順そのもの（venv・Ollama・索引・回帰）は `docs/HANDOFF-MBP.md` を参照。_
+commit & push する（不変条件）。環境構築の一回性の手順書は 2026-09-05 に削除した — 要るときは `git log --diff-filter=D -- docs/HANDOFF-MBP.md` で引く。_
 
 ## Neo（Mac・GPU なし・オフライン可）
 
@@ -42,10 +42,10 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
   ⑥ vault 同期後に `python -m garden index` を再実行。期待値は notes 780 前後（従来 796 から 2026-07-11 の整合性掃討で PMPP スタブ16件が削除済み）・zettel 124・chunks 全埋め込み。
   大きくズレたら `judge --regress` で基準（JSON妥当 29/35・gold 17/20・非gold link 11/15）からの悪化を確認。
   ※ Neo クローンの `data/` はプロト由来で本番 `findings.json` 未生成。本番サイクルは MBP 側で回す。
-- [ ] **M5 週次サイクルの初回本番実行**（手順は `docs/HANDOFF-MBP.md` §3.6、レポート再設計の実装後は新体裁で）:
+- [ ] **M5 週次サイクルの初回本番実行**（レポート再設計の実装後は新体裁で）:
   `candidates` → `judge --limit 40` → `sheet`（旧 `report` は移行済み・週次は sheet を使う）。週末レビュー後は `collect <シートパス>` → `stats` で採否を回収・集計。
   確認: `~/pkg_vault/_Reports/` に週次ノートが生成され、上位5件が confidence≥5 でゲートされていること。実行後 vault 側を commit/push。
-  ※ 環境構築（§3.1–3.5）は 2026-07-07 完了済み — index 再構築（notes 796・chunks 2589 全埋め込み）、judge 回帰が Neo 基準一致（gold 17/20・非gold link 11/15・JSON妥当 30/35）。
+  ※ 環境構築は 2026-07-07 完了済み — index 再構築（notes 796・chunks 2589 全埋め込み）、judge 回帰が Neo 基準一致（gold 17/20・非gold link 11/15・JSON妥当 30/35）。
 - [ ] **週次自動実行のセットアップ**（初回本番実行の後）: launchd で毎週決まった曜日に `candidates → judge → report` を自動実行し、レビューノートが人手なしで生える状態にする（MBP 常時稼働前提・2026-07-11 設計判断）。
   確認: 指定曜日に週次ノートが自動生成される。
 
@@ -70,4 +70,4 @@ commit & push する（不変条件）。環境構築の手順そのもの（ven
 ## 参照
 
 - 全体感・追記ログ: dev-hub `projects/pkg-robots.md`
-- 状態の大元: `README.md`（フェーズ・決着事項）＋このファイル（次の一手）。環境構築の手順は `docs/HANDOFF-MBP.md`（一回性文書）。
+- 状態の大元: `README.md`（フェーズ・決着事項）＋このファイル（次の一手）。
