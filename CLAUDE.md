@@ -34,6 +34,7 @@
   環境構築の一回性の手順書は 2026-09-05 に削除した（判定 = 一回性のセットアップ記録は git が持つ）。
   再構築が要るときは `git log --diff-filter=D -- docs/HANDOFF-MBP.md` で最後の版を引く。
 - **judge まわりの触ってはいけないもの**（この 4 つがこの repo での大元。根拠の実測は `docs/M6-回帰結果-LLMjp4.md`）:
+  - **判定役の宛先は LAN 名でなく Tailscale の IP を使う**（`config.toml` の `[judge] endpoint`）。LAN 名（`spark-062c.local`）は macOS のローカルネットワークの許可に掛かり、uv が入れた Python からだけ繋がらない（`curl` は通るのに落ちるので原因が見えにくい。2026-08-24 に切り分け・2026-09-05 に解消）。
   - `[report] min_confidence`（confidence≥5 ゲート）を安易に下げない — LLM-jp-4 の過剰リンク対策。提案洪水は過去の頓挫要因。
   - judge に `response_format: json_object` を送らない — DGX の llama.cpp は 400 になる。プロンプト強制＋パースリトライ実装（`judge_pair`）を触らない。
   - `call_llm` に max_tokens を送らない — thinking モデルは推論で打ち切られ content が空になる。

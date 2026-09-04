@@ -18,21 +18,11 @@ commit & push する（不変条件）。環境構築の一回性の手順書は
 
 ## MBP（M3 Max・埋め込みホスト・robot 本体）
 
-- [ ] **週次サイクルの初回本番 — シートは生成済み。あとは記入と回収**（2026-08-24）:
-  - 記入するもの = `~/pkg_vault/_Reports/garden-weekly-20260824.md`（提案 5 件 = 成熟度 4・Zettel 間リンク 1。各件の末尾で採用か却下にチェックを 1 つ）
-  - 回収 = `.venv/bin/python -m garden collect ~/pkg_vault/_Reports/garden-weekly-20260824.md`（`--dry-run` で内訳だけ見られる）
+- [ ] **週次サイクルの初回本番 — シートは生成済み。あとは記入と回収**（2026-09-05 に作り直した）:
+  - 記入するもの = `~/pkg_vault/_Reports/garden-weekly-20260905.md`（提案 5 件 = 成熟度 2・Zettel 間リンク 1・**文献リンク 2**。各件の末尾で採用か却下にチェックを 1 つ）
+  - 回収 = `.venv/bin/python -m garden collect ~/pkg_vault/_Reports/garden-weekly-20260905.md`（`--dry-run` で内訳だけ見られる）
   - 反映 = `.venv/bin/python -m garden apply --write --commit`（Obsidian を閉じてから）
-  - ⚠ **文献リンクの提案が 1 件も載っていない**。判定役（Spark）へ繋げず判定を回せていないため（下記）。規則ベースと Zettel 間リンクだけのシートになっている
-- [ ] **判定役へ繋がるようにする（ローカルネットワークの許可）**: `garden judge` が Spark へ繋がらない。
-  相手は生きていて `curl`・`nc` では通るのに、**Python からだけ「No route to host」で落ちる**。
-  2026-08-24 の切り分け: 同じ宛先へ `/usr/bin/python3` は繋がり、`.venv`（uv が入れた Python）は繋がらない。
-  同じ Python でも `localhost` は繋がる。＝ macOS のローカルネットワークの許可がこの Python に無い。
-  対処は 2 つあり、**Tailscale 経路への切り替えのほうがユーザーの操作を要らない**（2026-08-25 の hub 側の棚卸しで結論）。
-  ① `config.toml` の `[judge] endpoint` を Tailscale の IP（`http://100.117.133.28:11434/v1`）へ変える。
-     LAN 名（`spark-062c.local`）はローカルネットワークの許可に掛かるので、Neo からも使わない。
-  ② 通らなければ システム設定 → プライバシーとセキュリティ → ローカルネットワーク で、実行しているターミナルを許可する。
-  許可が通ったら `candidates`（済・3,677 ペア）→ `judge --limit 40` → `sheet` の順で回すと文献リンクが載る。
-
+  - 判定役（Spark）は 2026-09-05 に繋がった（宛先を Tailscale の IP へ。原因と手当ては `CLAUDE.md` の判定役の節）。旧シートは未記入のまま削除し、保留の 31 件は新しいシートへ繰り越した
 - [ ] **稼働・疎通の事前チェック**（2026-07-11 時点で MBP は Tailscale 上オフライン＝まず復帰。レポート再設計の実装とは独立に進められる）:
   ① MBP をネットワーク復帰させ、Tailscale で bobmbp が active になること（スリープ／Tailscale 停止／省電力設定を疑う。週次自動実行はこれの常時成立が前提）。
   ② vault 同期: **2026-08-25 の実測で未 push は 0 件**（2026-08-23 に MBP が tailnet へ復帰して解消済み。以前は 80 件超が滞留していた）。着手時にもう一度 `git -C ~/pkg_vault log --branches --not --remotes --oneline | wc -l` で見る。
